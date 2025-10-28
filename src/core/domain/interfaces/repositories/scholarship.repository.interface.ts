@@ -1,15 +1,19 @@
+import { Scholarship } from '../../entities';
+import { CreateScholarshipDto, UpdateScholarshipDto } from '../../dtos';
 import { IRepositoryBase } from './base.repository.interface';
 
-export interface IRepositoryScholarship<T = unknown>
-  extends IRepositoryBase<T> {
-  findBySponsor(sponsorId: string): Promise<T[]>;
-  findActive(): Promise<T[]>;
-  findByStatus(status: string): Promise<T[]>;
-  search(keyword: string): Promise<T[]>;
-  findByCategory(categoryId: string): Promise<T[]>;
-  findWithRelations(id: string): Promise<T | null>;
-  publish(id: string): Promise<void>;
-  close(id: string): Promise<void>;
+export interface IRepositoryScholarship
+  extends IRepositoryBase<
+    Scholarship,
+    CreateScholarshipDto,
+    UpdateScholarshipDto
+  > {
+  findBySponsor(sponsorId: string): Promise<Scholarship[]>;
+  findActive(): Promise<Scholarship[]>;
+  findByStatus(status: string): Promise<Scholarship[]>;
+  search(keyword: string): Promise<Scholarship[]>;
+  findByCategory(categoryId: string): Promise<Scholarship[]>;
+  findWithRelations(id: string): Promise<Scholarship | null>;
   belongsToSponsor(scholarshipId: string, sponsorId: string): Promise<boolean>;
 }
 

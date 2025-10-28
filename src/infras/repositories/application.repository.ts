@@ -1,28 +1,43 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma/prisma.service';
-import { IRepositoryApplication } from '../../core/domain/interfaces/repositories';
-import { Application, ApplicationStatus, Prisma } from '@prisma/client';
+import {
+  IRepositoryApplication,
+  PaginationParams,
+  PaginatedResult,
+} from '../../core/domain/interfaces/repositories';
+import { ApplicationStatus, Prisma } from '@prisma/client';
+import { Application } from '../../core/domain/entities';
+import { ApplicationMapper } from '../../core/domain/mappers';
+import {
+  CreateApplicationDto,
+  UpdateApplicationDto,
+} from '../../core/domain/dtos';
+
 @Injectable()
 export class ApplicationRepository implements IRepositoryApplication {
   constructor(private readonly prisma: PrismaService) {}
-  findById(id: string): Promise<Application | null> {
-    return this.prisma.application.findUnique({
+
+  async findById(id: string): Promise<Application | null> {
+    const prismaApplication = await this.prisma.application.findUnique({
       where: { id },
     });
+    if (!prismaApplication) return null;
+    return ApplicationMapper.toDomain(prismaApplication);
   }
 
-  findByStudent(studentId: string): Promise<Application[]> {
-    return this.prisma.application.findMany({
+  async findByStudent(studentId: string): Promise<Application[]> {
+    const prismaApplications = await this.prisma.application.findMany({
       where: { applicantId: studentId },
       orderBy: { createdAt: 'desc' },
       include: {
         scholarship: true,
       },
     });
+    return ApplicationMapper.toDomainArray(prismaApplications);
   }
 
-  findByScholarship(scholarshipId: string): Promise<Application[]> {
-    return this.prisma.application.findMany({
+  async findByScholarship(scholarshipId: string): Promise<Application[]> {
+    const prismaApplications = await this.prisma.application.findMany({
       where: { scholarshipId },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -36,17 +51,19 @@ export class ApplicationRepository implements IRepositoryApplication {
         },
       },
     });
+    return ApplicationMapper.toDomainArray(prismaApplications);
   }
 
-  findByStatus(status: string): Promise<Application[]> {
-    return this.prisma.application.findMany({
+  async findByStatus(status: string): Promise<Application[]> {
+    const prismaApplications = await this.prisma.application.findMany({
       where: { status: status as ApplicationStatus },
       orderBy: { createdAt: 'desc' },
     });
+    return ApplicationMapper.toDomainArray(prismaApplications);
   }
 
-  findWithRelations(id: string): Promise<Application | null> {
-    return this.prisma.application.findUnique({
+  async findWithRelations(id: string): Promise<Application | null> {
+    const prismaApplication = await this.prisma.application.findUnique({
       where: { id },
       include: {
         documents: true,
@@ -63,23 +80,59 @@ export class ApplicationRepository implements IRepositoryApplication {
         scholarship: true,
       },
     });
+    if (!prismaApplication) return null;
+    return ApplicationMapper.toDomain(prismaApplication);
   }
-  findAll(params?: Prisma.ApplicationFindManyArgs): Promise<Application[]> {
-    return this.prisma.application.findMany(params);
+
+  async findAll(
+    params?: PaginationParams,
+  ): Promise<PaginatedResult<Application>> {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const [prismaApplications, total] = await Promise.all([
+      this.prisma.application.findMany({
+        skip,
+        take: limit,
+        orderBy: params?.sortBy
+          ? { [params.sortBy]: params.sortOrder ?? 'asc' }
+          : undefined,
+      }),
+      this.prisma.application.count(),
+    ]);
+
+    return {
+      data: ApplicationMapper.toDomainArray(prismaApplications),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
-  create(data: Prisma.ApplicationCreateInput): Promise<Application> {
-    return this.prisma.application.create({
-      data,
+
+  async create(dto: CreateApplicationDto): Promise<Application> {
+    const prismaApplication = await this.prisma.application.create({
+      data: {
+        scholarshipId: dto.scholarshipId,
+        applicantId: dto.applicantId,
+        coverLetter: dto.coverLetter,
+        additionalInfo: dto.additionalInfo as never, // Cast for Prisma JsonValue
+      },
     });
+    return ApplicationMapper.toDomain(prismaApplication);
   }
-  update(
-    id: string,
-    data: Prisma.ApplicationUpdateInput,
-  ): Promise<Application> {
-    return this.prisma.application.update({
+
+  async update(id: string, dto: UpdateApplicationDto): Promise<Application> {
+    const prismaApplication = await this.prisma.application.update({
       where: { id },
-      data,
+      data: {
+        coverLetter: dto.coverLetter,
+        additionalInfo: dto.additionalInfo as never, // Cast for Prisma JsonValue
+        status: dto.status,
+      },
     });
+    return ApplicationMapper.toDomain(prismaApplication);
   }
 
   async delete(id: string): Promise<void> {
@@ -100,40 +153,6 @@ export class ApplicationRepository implements IRepositoryApplication {
       },
     });
     return count > 0;
-  }
-
-  async updateStatus(id: string, status: string): Promise<void> {
-    await this.prisma.application.update({
-      where: { id },
-      data: { status: status as ApplicationStatus },
-    });
-  }
-
-  async submit(id: string): Promise<void> {
-    await this.prisma.application.update({
-      where: { id },
-      data: {
-        status: ApplicationStatus.SUBMITTED,
-        submittedAt: new Date(),
-      },
-    });
-  }
-
-  async approve(id: string): Promise<void> {
-    await this.prisma.application.update({
-      where: { id },
-      data: { status: ApplicationStatus.APPROVED },
-    });
-  }
-
-  async reject(id: string, reason?: string): Promise<void> {
-    await this.prisma.application.update({
-      where: { id },
-      data: {
-        status: ApplicationStatus.REJECTED,
-        ...(reason && { notes: reason }),
-      },
-    });
   }
 
   countByScholarship(scholarshipId: string): Promise<number> {

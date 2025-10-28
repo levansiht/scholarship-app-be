@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ScholarshipStatus, Prisma } from '@prisma/client';
+import { ZodError } from 'zod';
 import { PrismaService } from '../database/prisma/prisma.service';
 import {
   IRepositoryScholarship,
@@ -11,6 +12,8 @@ import { ScholarshipMapper } from '../../core/domain/mappers';
 import {
   CreateScholarshipDto,
   UpdateScholarshipDto,
+  validateCreateScholarshipDto,
+  validateUpdateScholarshipDto,
 } from '../../core/domain/dtos';
 
 @Injectable()
@@ -124,64 +127,72 @@ export class ScholarshipRepository implements IRepositoryScholarship {
   }
 
   async create(dto: CreateScholarshipDto): Promise<Scholarship> {
-    const prismaScholarship = await this.prisma.scholarship.create({
-      data: {
-        createdBy: dto.createdBy,
-        title: dto.title,
-        slug: dto.slug,
-        description: dto.description,
-        amount: dto.amount,
-        currency: dto.currency,
-        numberOfSlots: dto.numberOfSlots,
-        availableSlots: dto.numberOfSlots, // Initially same as numberOfSlots
-        deadline: dto.deadline,
-        startDate: dto.startDate,
-        endDate: dto.endDate,
-        tags: dto.tags,
-        thumbnailUrl: dto.thumbnailUrl,
-      },
-    });
-    return ScholarshipMapper.toDomain(prismaScholarship);
+    try {
+      const validated = validateCreateScholarshipDto(dto);
+
+      const prismaScholarship = await this.prisma.scholarship.create({
+        data: {
+          createdBy: validated.createdBy,
+          title: validated.title,
+          slug: validated.slug,
+          description: validated.description,
+          amount: validated.amount,
+          currency: validated.currency,
+          numberOfSlots: validated.numberOfSlots,
+          availableSlots: validated.numberOfSlots,
+          deadline: validated.deadline,
+          startDate: validated.startDate,
+          endDate: validated.endDate,
+          tags: validated.tags,
+          thumbnailUrl: validated.thumbnailUrl,
+        },
+      });
+      return ScholarshipMapper.toDomain(prismaScholarship);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(
+          `Validation failed: ${error.issues.map((e) => e.message).join(', ')}`,
+        );
+      }
+      throw new Error(`Failed to create scholarship: ${error}`);
+    }
   }
 
-  /**
-   * Update existing scholarship
-   * @param dto - Partial scholarship data for update
-   */
   async update(id: string, dto: UpdateScholarshipDto): Promise<Scholarship> {
-    const prismaScholarship = await this.prisma.scholarship.update({
-      where: { id },
-      data: {
-        title: dto.title,
-        description: dto.description,
-        deadline: dto.deadline,
-        numberOfSlots: dto.numberOfSlots,
-        status: dto.status,
-      },
-    });
-    return ScholarshipMapper.toDomain(prismaScholarship);
+    try {
+      const validated = validateUpdateScholarshipDto(dto);
+
+      const prismaScholarship = await this.prisma.scholarship.update({
+        where: { id },
+        data: {
+          title: validated.title,
+          description: validated.description,
+          deadline: validated.deadline,
+          numberOfSlots: validated.numberOfSlots,
+          status: validated.status,
+        },
+      });
+      return ScholarshipMapper.toDomain(prismaScholarship);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(
+          `Validation failed: ${error.issues.map((e) => e.message).join(', ')}`,
+        );
+      }
+      throw new Error(`Failed to update scholarship: ${error}`);
+    }
   }
 
-  /**
-   * Delete scholarship
-   */
   async delete(id: string): Promise<void> {
     await this.prisma.scholarship.delete({
       where: { id },
     });
   }
 
-  /**
-   * Count scholarships with optional filters
-   */
   count(params?: Prisma.ScholarshipCountArgs): Promise<number> {
     return this.prisma.scholarship.count(params);
   }
 
-  /**
-   * Check if scholarship belongs to sponsor
-   * Returns true if the sponsor created this scholarship
-   */
   async belongsToSponsor(
     scholarshipId: string,
     sponsorId: string,

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ZodError } from 'zod';
 import { PrismaService } from '../database/prisma/prisma.service';
 import {
   IRepositoryApplication,
@@ -11,6 +12,8 @@ import { ApplicationMapper } from '../../core/domain/mappers';
 import {
   CreateApplicationDto,
   UpdateApplicationDto,
+  validateCreateApplicationDto,
+  validateUpdateApplicationDto,
 } from '../../core/domain/dtos';
 
 @Injectable()
@@ -112,27 +115,49 @@ export class ApplicationRepository implements IRepositoryApplication {
   }
 
   async create(dto: CreateApplicationDto): Promise<Application> {
-    const prismaApplication = await this.prisma.application.create({
-      data: {
-        scholarshipId: dto.scholarshipId,
-        applicantId: dto.applicantId,
-        coverLetter: dto.coverLetter,
-        additionalInfo: dto.additionalInfo as never, // Cast for Prisma JsonValue
-      },
-    });
-    return ApplicationMapper.toDomain(prismaApplication);
+    try {
+      const validated = validateCreateApplicationDto(dto);
+
+      const prismaApplication = await this.prisma.application.create({
+        data: {
+          scholarshipId: validated.scholarshipId,
+          applicantId: validated.applicantId,
+          coverLetter: validated.coverLetter,
+          additionalInfo: validated.additionalInfo as never,
+        },
+      });
+      return ApplicationMapper.toDomain(prismaApplication);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(
+          `Validation failed: ${error.issues.map((e) => e.message).join(', ')}`,
+        );
+      }
+      throw new Error(`Failed to create application: ${error}`);
+    }
   }
 
   async update(id: string, dto: UpdateApplicationDto): Promise<Application> {
-    const prismaApplication = await this.prisma.application.update({
-      where: { id },
-      data: {
-        coverLetter: dto.coverLetter,
-        additionalInfo: dto.additionalInfo as never, // Cast for Prisma JsonValue
-        status: dto.status,
-      },
-    });
-    return ApplicationMapper.toDomain(prismaApplication);
+    try {
+      const validated = validateUpdateApplicationDto(dto);
+
+      const prismaApplication = await this.prisma.application.update({
+        where: { id },
+        data: {
+          coverLetter: validated.coverLetter,
+          additionalInfo: validated.additionalInfo as never,
+          status: validated.status,
+        },
+      });
+      return ApplicationMapper.toDomain(prismaApplication);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(
+          `Validation failed: ${error.issues.map((e) => e.message).join(', ')}`,
+        );
+      }
+      throw new Error(`Failed to update application: ${error}`);
+    }
   }
 
   async delete(id: string): Promise<void> {

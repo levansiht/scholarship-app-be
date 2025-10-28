@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRole, Prisma } from '@prisma/client';
+import { ZodError } from 'zod';
 import { PrismaService } from '../database/prisma/prisma.service';
 import {
   IRepositoryUser,
@@ -8,7 +9,12 @@ import {
 } from '../../core/domain/interfaces/repositories';
 import { User } from '../../core/domain/entities';
 import { UserMapper } from '../../core/domain/mappers';
-import { CreateUserDto, UpdateUserDto } from '../../core/domain/dtos';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  validateCreateUserDto,
+  validateUpdateUserDto,
+} from '../../core/domain/dtos';
 
 @Injectable()
 export class UserRepository implements IRepositoryUser {
@@ -74,26 +80,48 @@ export class UserRepository implements IRepositoryUser {
   }
 
   async create(dto: CreateUserDto): Promise<User> {
-    const prismaUser = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        password: dto.password,
-        role: dto.role as UserRole,
-      },
-    });
-    return UserMapper.toDomain(prismaUser);
+    try {
+      const validated = validateCreateUserDto(dto);
+
+      const prismaUser = await this.prisma.user.create({
+        data: {
+          email: validated.email,
+          password: validated.password,
+          role: validated.role as UserRole,
+        },
+      });
+      return UserMapper.toDomain(prismaUser);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(
+          `Validation failed: ${error.issues.map((e) => e.message).join(', ')}`,
+        );
+      }
+      throw new Error(`Failed to create user: ${error}`);
+    }
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<User> {
-    const prismaUser = await this.prisma.user.update({
-      where: { id },
-      data: {
-        email: dto.email,
-        password: dto.password,
-        status: dto.status,
-      },
-    });
-    return UserMapper.toDomain(prismaUser);
+    try {
+      const validated = validateUpdateUserDto(dto);
+
+      const prismaUser = await this.prisma.user.update({
+        where: { id },
+        data: {
+          email: validated.email,
+          password: validated.password,
+          status: validated.status,
+        },
+      });
+      return UserMapper.toDomain(prismaUser);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(
+          `Validation failed: ${error.issues.map((e) => e.message).join(', ')}`,
+        );
+      }
+      throw new Error(`Failed to update user: ${error}`);
+    }
   }
 
   async delete(id: string): Promise<void> {

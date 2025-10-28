@@ -24,15 +24,9 @@ async function main() {
     await prisma.scholarshipRequirement.deleteMany();
     await prisma.scholarshipCategory.deleteMany();
     await prisma.scholarship.deleteMany();
-    await prisma.notification.deleteMany();
-    await prisma.message.deleteMany();
-    await prisma.refreshToken.deleteMany();
-    await prisma.emailVerification.deleteMany();
-    await prisma.passwordReset.deleteMany();
     await prisma.sponsorProfile.deleteMany();
     await prisma.studentProfile.deleteMany();
     await prisma.profile.deleteMany();
-    await prisma.auditLog.deleteMany();
     await prisma.user.deleteMany();
   }
 
@@ -56,7 +50,6 @@ async function main() {
           lastName: 'System',
           fullName: 'Admin System',
           phoneNumber: '+84901234567',
-          gender: 'MALE',
           city: 'Ho Chi Minh',
           country: 'Vietnam',
           bio: 'System Administrator',
@@ -142,7 +135,6 @@ async function main() {
           fullName: 'Nguyen Van An',
           phoneNumber: '+84904567890',
           dateOfBirth: new Date('2003-05-15'),
-          gender: 'MALE',
           city: 'Ho Chi Minh',
           country: 'Vietnam',
           bio: 'Computer Science student passionate about AI and Machine Learning',
@@ -186,7 +178,6 @@ async function main() {
           fullName: 'Tran Thi Bich',
           phoneNumber: '+84905678901',
           dateOfBirth: new Date('2004-08-20'),
-          gender: 'FEMALE',
           city: 'Hanoi',
           country: 'Vietnam',
           bio: 'Business Administration student with interest in entrepreneurship',
@@ -221,7 +212,6 @@ async function main() {
           fullName: 'Le Minh Quan',
           phoneNumber: '+84906789012',
           dateOfBirth: new Date('2003-12-10'),
-          gender: 'MALE',
           city: 'Da Nang',
           country: 'Vietnam',
           bio: 'Engineering student focused on renewable energy',
@@ -424,7 +414,6 @@ Students demonstrating leadership potential and academic excellence`,
             'Information Technology',
             'Software Engineering',
           ],
-          gender: 'FEMALE',
           nationality: ['Vietnam'],
         },
       },
@@ -515,35 +504,6 @@ Students demonstrating leadership potential and academic excellence`,
     ],
   });
   console.log('✅ Created saved scholarships');
-
-  // ===================================
-  // CREATE NOTIFICATIONS
-  // ===================================
-
-  await prisma.notification.createMany({
-    data: [
-      {
-        userId: student1.id,
-        type: 'APPLICATION_STATUS_CHANGE',
-        title: 'Application Submitted',
-        message:
-          'Your application for Vingroup Innovation Scholarship has been submitted successfully',
-      },
-      {
-        userId: student1.id,
-        type: 'NEW_SCHOLARSHIP',
-        title: 'New Scholarship Available',
-        message: 'Check out the new Women in Tech Scholarship',
-      },
-      {
-        userId: student2.id,
-        type: 'DEADLINE_REMINDER',
-        title: 'Deadline Approaching',
-        message: 'Viettel Future Leaders Scholarship deadline is in 7 days',
-      },
-    ],
-  });
-  console.log('✅ Created notifications');
 
   console.log('🎉 Database seeding completed!');
   console.log('\n📊 Summary:');

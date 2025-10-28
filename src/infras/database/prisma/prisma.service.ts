@@ -36,16 +36,11 @@ export class PrismaService
 
     /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
-    // Delete in correct order: children first, then parents
-    // This respects foreign key constraints without using CASCADE
-
-    // Application related (children first)
     await this.applicationReview.deleteMany({});
     await this.applicationDocument.deleteMany({});
     await this.applicationTimeline.deleteMany({});
     await this.application.deleteMany({});
 
-    // Scholarship related (children first)
     await this.savedScholarship.deleteMany({});
     await this.scholarshipDocument.deleteMany({});
     await this.eligibilityCriteria.deleteMany({});
@@ -53,23 +48,10 @@ export class PrismaService
     await this.scholarshipCategory.deleteMany({});
     await this.scholarship.deleteMany({});
 
-    // Communication
-    await this.message.deleteMany({});
-    await this.notification.deleteMany({});
-
-    // Auth related
-    await this.passwordReset.deleteMany({});
-    await this.emailVerification.deleteMany({});
-    await this.refreshToken.deleteMany({});
-
-    // User related (children first)
     await this.sponsorProfile.deleteMany({});
     await this.studentProfile.deleteMany({});
     await this.profile.deleteMany({});
     await this.user.deleteMany({});
-
-    // Audit
-    await this.auditLog.deleteMany({});
 
     /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 

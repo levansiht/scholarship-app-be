@@ -6,6 +6,7 @@ import {
   USER_REPOSITORY,
   IRepositoryUser,
 } from '../src/core/domain/interfaces/repositories';
+import { UserRole } from '../src/core/domain/entities';
 
 describe('Phase 2 - Infrastructure Layer (e2e)', () => {
   let app: INestApplication;
@@ -32,15 +33,15 @@ describe('Phase 2 - Infrastructure Layer (e2e)', () => {
   describe('Database Module', () => {
     it('should connect to database successfully', () => {
       expect(prisma).toBeDefined();
-      expect(prisma.$connect).toBeDefined();
+      expect(typeof prisma.$connect).toBe('function');
     });
   });
 
   describe('Repository DI', () => {
     it('should inject UserRepository via DI token', () => {
       expect(userRepository).toBeDefined();
-      expect(userRepository.findById).toBeDefined();
-      expect(userRepository.findByEmail).toBeDefined();
+      expect(typeof userRepository.findById).toBe('function');
+      expect(typeof userRepository.findByEmail).toBe('function');
     });
   });
 
@@ -74,7 +75,7 @@ describe('Phase 2 - Infrastructure Layer (e2e)', () => {
       expect(students).toBeDefined();
       expect(Array.isArray(students)).toBe(true);
       expect(students.length).toBeGreaterThan(0);
-      expect(students.every((u) => u.role === 'STUDENT')).toBe(true);
+      expect(students.every((u) => u.role === UserRole.STUDENT)).toBe(true);
     });
 
     it('should count users', async () => {

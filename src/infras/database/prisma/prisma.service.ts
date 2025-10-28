@@ -7,13 +7,11 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   async onModuleInit(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await this.$connect();
     console.log('✅ Database connected successfully');
   }
 
   async onModuleDestroy(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     await this.$disconnect();
     console.log('❌ Database disconnected');
   }
@@ -34,8 +32,6 @@ export class PrismaService
       throw new Error('Cannot clean database in production environment!');
     }
 
-    /* eslint-disable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
-
     await this.applicationReview.deleteMany({});
     await this.applicationDocument.deleteMany({});
     await this.applicationTimeline.deleteMany({});
@@ -52,8 +48,6 @@ export class PrismaService
     await this.studentProfile.deleteMany({});
     await this.profile.deleteMany({});
     await this.user.deleteMany({});
-
-    /* eslint-enable @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
     console.log('🧹 Database cleaned successfully (for testing only)');
   }

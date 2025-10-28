@@ -4,13 +4,13 @@ import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/infras/database/prisma/prisma.service';
 import {
   USER_REPOSITORY,
-  UserRepositoryInterface,
+  IRepositoryUser,
 } from '../src/core/domain/interfaces/repositories';
 
 describe('Phase 2 - Infrastructure Layer (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let userRepository: UserRepositoryInterface;
+  let userRepository: IRepositoryUser;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -21,8 +21,7 @@ describe('Phase 2 - Infrastructure Layer (e2e)', () => {
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    userRepository =
-      moduleFixture.get<UserRepositoryInterface>(USER_REPOSITORY);
+    userRepository = moduleFixture.get<IRepositoryUser>(USER_REPOSITORY);
   });
 
   afterAll(async () => {
@@ -106,7 +105,7 @@ describe('Phase 2 - Infrastructure Layer (e2e)', () => {
   describe('Repository Pattern Benefits', () => {
     it('should allow business logic to depend on interface, not implementation', () => {
       // This test verifies that we can inject via DI token
-      // Business logic will only know about UserRepositoryInterface
+      // Business logic will only know about IRepositoryUser
       // Not the concrete UserRepository implementation
 
       expect(userRepository).toBeDefined();

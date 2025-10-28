@@ -1,17 +1,6 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
-/**
- * PrismaService - Database connection wrapper
- *
- * Extends PrismaClient to provide:
- * - Automatic connection management via NestJS lifecycle hooks
- * - Database cleanup utility for testing
- *
- * Note: PrismaClient base class types methods as `any` in its type definitions.
- * This is a Prisma ORM design limitation, not an implementation flaw.
- * We use targeted eslint-disable for unavoidable `any` types from Prisma's base class.
- */
 @Injectable()
 export class PrismaService
   extends PrismaClient

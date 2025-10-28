@@ -323,7 +323,7 @@ export class AppModule {}
 **File:** `src/core/domain/interfaces/repositories/base.repository.interface.ts`
 
 ```typescript
-export interface BaseRepositoryInterface<T> {
+export interface IRepositoryBase<T> {
   findById(id: string): Promise<T | null>;
   findAll(params?: any): Promise<T[]>;
   create(data: any): Promise<T>;
@@ -337,9 +337,9 @@ export interface BaseRepositoryInterface<T> {
 
 ```typescript
 import { User } from '@prisma/client';
-import { BaseRepositoryInterface } from './base.repository.interface';
+import { IRepositoryBase } from './base.repository.interface';
 
-export interface UserRepositoryInterface extends BaseRepositoryInterface<User> {
+export interface IRepositoryUser extends IRepositoryBase<User> {
   findByEmail(email: string): Promise<User | null>;
   findWithProfile(id: string): Promise<User | null>;
   findByRole(role: string): Promise<User[]>;
@@ -352,10 +352,10 @@ export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 
 **Checklist:**
 
-- [ ] Create BaseRepositoryInterface
-- [ ] Create UserRepositoryInterface
-- [ ] Create ScholarshipRepositoryInterface
-- [ ] Create ApplicationRepositoryInterface
+- [ ] Create IRepositoryBase
+- [ ] Create IRepositoryUser
+- [ ] Create IRepositoryScholarship
+- [ ] Create IRepositoryApplication
 - [ ] Add DI tokens (Symbol)
 - [ ] Document all methods
 
@@ -381,10 +381,10 @@ export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
-import { UserRepositoryInterface } from '../../core/domain/interfaces/repositories/user.repository.interface';
+import { IRepositoryUser } from '../../core/domain/interfaces/repositories/user.repository.interface';
 
 @Injectable()
-export class UserRepository implements UserRepositoryInterface {
+export class UserRepository implements IRepositoryUser {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<User | null> {

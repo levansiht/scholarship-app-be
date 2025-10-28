@@ -1,7 +1,6 @@
-import { BaseRepositoryInterface } from './base.repository.interface';
+import { IRepositoryBase } from './base.repository.interface';
 
-export interface UserRepositoryInterface<T = unknown>
-  extends BaseRepositoryInterface<T> {
+export interface IRepositoryUser<T = unknown> extends IRepositoryBase<T> {
   findByEmail(email: string): Promise<T | null>;
   findWithProfile(id: string): Promise<T | null>;
   findByRole(role: string): Promise<T[]>;

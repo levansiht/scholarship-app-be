@@ -1,7 +1,7 @@
-import { BaseRepositoryInterface } from './base.repository.interface';
+import { IRepositoryBase } from './base.repository.interface';
 
-export interface ScholarshipRepositoryInterface<T = unknown>
-  extends BaseRepositoryInterface<T> {
+export interface IRepositoryScholarship<T = unknown>
+  extends IRepositoryBase<T> {
   findBySponsor(sponsorId: string): Promise<T[]>;
   findActive(): Promise<T[]>;
   findByStatus(status: string): Promise<T[]>;

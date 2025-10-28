@@ -89,7 +89,7 @@ constructor(private prisma: PrismaService) {}
 **Làm gì:**
 
 - Định nghĩa **interface** (contract) cho repositories
-- Tạo `BaseRepositoryInterface` với CRUD cơ bản
+- Tạo `IRepositoryBase` với CRUD cơ bản
 - Tạo interface riêng cho User, Scholarship, Application
 
 **Tại sao:**
@@ -102,7 +102,7 @@ constructor(private prisma: PrismaService) {}
 
 ```typescript
 // Interface ở Domain Layer
-export interface UserRepositoryInterface {
+export interface IRepositoryUser {
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   create(data: CreateUserDto): Promise<User>;
@@ -138,7 +138,7 @@ export const USER_REPOSITORY = Symbol('USER_REPOSITORY'); // DI Token
 
 ```typescript
 @Injectable()
-export class UserRepository implements UserRepositoryInterface {
+export class UserRepository implements IRepositoryUser {
   constructor(private prisma: PrismaService) {}
 
   async findById(id: string): Promise<User | null> {
@@ -264,7 +264,7 @@ describe('UserRepository', () => {
 
 ✅ **D - Dependency Inversion**
 
-- Business logic phụ thuộc vào `UserRepositoryInterface` (abstraction)
+- Business logic phụ thuộc vào `IRepositoryUser` (abstraction)
 - KHÔNG phụ thuộc vào `UserRepository` (implementation)
 
 ### 3. **Testability**
@@ -290,7 +290,7 @@ class AuthService {
 class AuthService {
   constructor(
     @Inject(USER_REPOSITORY)
-    private userRepo: UserRepositoryInterface,
+    private userRepo: IRepositoryUser,
   ) {}
 
   async login(email: string) {
@@ -300,7 +300,7 @@ class AuthService {
 }
 
 // Test
-const mockUserRepo: UserRepositoryInterface = {
+const mockUserRepo: IRepositoryUser = {
   findByEmail: jest.fn().mockResolvedValue(fakeUser),
 };
 ```
@@ -311,12 +311,12 @@ const mockUserRepo: UserRepositoryInterface = {
 
 ```typescript
 // Hiện tại: Prisma
-class UserRepository implements UserRepositoryInterface {
+class UserRepository implements IRepositoryUser {
   constructor(private prisma: PrismaService) {}
 }
 
 // Tương lai: TypeORM
-class UserRepository implements UserRepositoryInterface {
+class UserRepository implements IRepositoryUser {
   constructor(private typeorm: TypeOrmService) {}
 }
 
@@ -337,7 +337,7 @@ class UserRepository implements UserRepositoryInterface {
 ### 2. **TypeScript**
 
 - Interfaces
-- Generics (`BaseRepositoryInterface<T>`)
+- Generics (`IRepositoryBase<T>`)
 - Symbols (DI tokens)
 - Async/Await
 
@@ -370,9 +370,9 @@ class UserRepository implements UserRepositoryInterface {
 @Injectable()
 class AnyService {
   constructor(
-    @Inject(USER_REPOSITORY) private userRepo: UserRepositoryInterface,
+    @Inject(USER_REPOSITORY) private userRepo: IRepositoryUser,
     @Inject(SCHOLARSHIP_REPOSITORY)
-    private scholarshipRepo: ScholarshipRepositoryInterface,
+    private scholarshipRepo: IRepositoryScholarship,
   ) {}
 
   async doSomething() {

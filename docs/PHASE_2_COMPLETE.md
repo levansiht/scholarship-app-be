@@ -160,7 +160,7 @@ Tests:       10 passed, 10 total
 
 #### ✅ L - Liskov Substitution Principle
 
-- Any `UserRepositoryInterface` implementation is interchangeable
+- Any `IRepositoryUser` implementation is interchangeable
 - Can swap `UserRepository` with `MockUserRepository` in tests
 - Business logic doesn't break when implementation changes
 
@@ -168,7 +168,7 @@ Tests:       10 passed, 10 total
 
 - Small, focused interfaces
 - Clients only depend on methods they use
-- `BaseRepositoryInterface` provides common CRUD
+- `IRepositoryBase` provides common CRUD
 - Specific interfaces extend for specialized methods
 
 #### ✅ D - Dependency Inversion Principle
@@ -186,7 +186,7 @@ Tests:       10 passed, 10 total
 
 ```typescript
 // Easy to mock repositories in tests
-const mockUserRepo: UserRepositoryInterface = {
+const mockUserRepo: IRepositoryUser = {
   findByEmail: jest.fn().mockResolvedValue(fakeUser),
   // ... other methods
 };
@@ -201,12 +201,12 @@ const service = new AuthService(mockUserRepo);
 // Can switch from Prisma to TypeORM without changing business logic
 
 // Before:
-class UserRepository implements UserRepositoryInterface {
+class UserRepository implements IRepositoryUser {
   constructor(private prisma: PrismaService) {}
 }
 
 // After:
-class UserRepository implements UserRepositoryInterface {
+class UserRepository implements IRepositoryUser {
   constructor(private typeorm: TypeOrmService) {} // Changed!
 }
 
@@ -221,7 +221,7 @@ class UserRepository implements UserRepositoryInterface {
 class AuthService {
   constructor(
     @Inject(USER_REPOSITORY) // DI Token
-    private userRepo: UserRepositoryInterface, // Interface
+    private userRepo: IRepositoryUser, // Interface
   ) {}
 
   async login(email: string) {
@@ -335,14 +335,14 @@ npm run test:e2e
 import { Injectable, Inject } from '@nestjs/common';
 import {
   USER_REPOSITORY,
-  UserRepositoryInterface,
+  IRepositoryUser,
 } from '../core/domain/interfaces/repositories';
 
 @Injectable()
 export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepository: UserRepositoryInterface,
+    private readonly userRepository: IRepositoryUser,
   ) {}
 
   async register(email: string, password: string) {

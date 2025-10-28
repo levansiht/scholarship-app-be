@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Scholarship, ScholarshipStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma/prisma.service';
-import { ScholarshipRepositoryInterface } from '../../core/domain/interfaces/repositories';
+import { IRepositoryScholarship } from '../../core/domain/interfaces/repositories';
 
 /**
  * ScholarshipRepository - Data access layer for Scholarship entity
@@ -13,7 +13,7 @@ import { ScholarshipRepositoryInterface } from '../../core/domain/interfaces/rep
  * - Encapsulate Prisma-specific logic
  */
 @Injectable()
-export class ScholarshipRepository implements ScholarshipRepositoryInterface {
+export class ScholarshipRepository implements IRepositoryScholarship {
   constructor(private readonly prisma: PrismaService) {}
 
   /**

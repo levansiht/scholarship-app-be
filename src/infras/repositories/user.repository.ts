@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User, UserRole, UserStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma/prisma.service';
-import { UserRepositoryInterface } from '../../core/domain/interfaces/repositories';
+import { IRepositoryUser } from '../../core/domain/interfaces/repositories';
 
 /**
  * UserRepository - Data access layer for User entity
@@ -13,7 +13,7 @@ import { UserRepositoryInterface } from '../../core/domain/interfaces/repositori
  * - Encapsulate Prisma-specific logic
  */
 @Injectable()
-export class UserRepository implements UserRepositoryInterface {
+export class UserRepository implements IRepositoryUser {
   constructor(private readonly prisma: PrismaService) {}
 
   /**

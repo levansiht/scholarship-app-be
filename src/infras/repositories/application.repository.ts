@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma/prisma.service';
-import { ApplicationRepositoryInterface } from '../../core/domain/interfaces/repositories';
+import { IRepositoryApplication } from '../../core/domain/interfaces/repositories';
 import { Application, ApplicationStatus, Prisma } from '@prisma/client';
 @Injectable()
-export class ApplicationRepository implements ApplicationRepositoryInterface {
+export class ApplicationRepository implements IRepositoryApplication {
   constructor(private readonly prisma: PrismaService) {}
   findById(id: string): Promise<Application | null> {
     return this.prisma.application.findUnique({

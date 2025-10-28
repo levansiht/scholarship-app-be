@@ -1,4 +1,4 @@
-export interface BaseRepositoryInterface<T> {
+export interface IRepositoryBase<T> {
   findById(id: string): Promise<T | null>;
   findAll(params?: any): Promise<T[]>;
   create(data: any): Promise<T>;

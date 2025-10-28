@@ -1,46 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { Scholarship, ScholarshipStatus, Prisma } from '@prisma/client';
+import { ScholarshipStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../database/prisma/prisma.service';
-import { IRepositoryScholarship } from '../../core/domain/interfaces/repositories';
+import {
+  IRepositoryScholarship,
+  PaginationParams,
+  PaginatedResult,
+} from '../../core/domain/interfaces/repositories';
+import { Scholarship } from '../../core/domain/entities';
+import { ScholarshipMapper } from '../../core/domain/mappers';
+import {
+  CreateScholarshipDto,
+  UpdateScholarshipDto,
+} from '../../core/domain/dtos';
 
-/**
- * ScholarshipRepository - Data access layer for Scholarship entity
- *
- * Responsibilities:
- * - Implement repository interface from domain layer
- * - Handle all database operations via Prisma
- * - Provide type-safe data access methods
- * - Encapsulate Prisma-specific logic
- */
 @Injectable()
 export class ScholarshipRepository implements IRepositoryScholarship {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * Find scholarship by ID
-   */
-  findById(id: string): Promise<Scholarship | null> {
-    return this.prisma.scholarship.findUnique({
+  async findById(id: string): Promise<Scholarship | null> {
+    const prismaScholarship = await this.prisma.scholarship.findUnique({
       where: { id },
     });
+    if (!prismaScholarship) return null;
+    return ScholarshipMapper.toDomain(prismaScholarship);
   }
 
-  /**
-   * Find all scholarships created by a sponsor
-   */
-  findBySponsor(sponsorId: string): Promise<Scholarship[]> {
-    return this.prisma.scholarship.findMany({
+  async findBySponsor(sponsorId: string): Promise<Scholarship[]> {
+    const prismaScholarships = await this.prisma.scholarship.findMany({
       where: { createdBy: sponsorId },
       orderBy: { createdAt: 'desc' },
     });
+    return ScholarshipMapper.toDomainArray(prismaScholarships);
   }
 
-  /**
-   * Find all active scholarships (OPEN status and not expired)
-   */
-  findActive(): Promise<Scholarship[]> {
+  async findActive(): Promise<Scholarship[]> {
     const now = new Date();
-    return this.prisma.scholarship.findMany({
+    const prismaScholarships = await this.prisma.scholarship.findMany({
       where: {
         status: ScholarshipStatus.OPEN,
         deadline: {
@@ -49,24 +44,19 @@ export class ScholarshipRepository implements IRepositoryScholarship {
       },
       orderBy: { createdAt: 'desc' },
     });
+    return ScholarshipMapper.toDomainArray(prismaScholarships);
   }
 
-  /**
-   * Find scholarships by status
-   */
-  findByStatus(status: string): Promise<Scholarship[]> {
-    return this.prisma.scholarship.findMany({
+  async findByStatus(status: string): Promise<Scholarship[]> {
+    const prismaScholarships = await this.prisma.scholarship.findMany({
       where: { status: status as ScholarshipStatus },
       orderBy: { createdAt: 'desc' },
     });
+    return ScholarshipMapper.toDomainArray(prismaScholarships);
   }
 
-  /**
-   * Search scholarships by keyword in title or description
-   * Only returns OPEN scholarships
-   */
-  search(keyword: string): Promise<Scholarship[]> {
-    return this.prisma.scholarship.findMany({
+  async search(keyword: string): Promise<Scholarship[]> {
+    const prismaScholarships = await this.prisma.scholarship.findMany({
       where: {
         OR: [
           { title: { contains: keyword, mode: 'insensitive' } },
@@ -76,13 +66,10 @@ export class ScholarshipRepository implements IRepositoryScholarship {
       },
       orderBy: { createdAt: 'desc' },
     });
+    return ScholarshipMapper.toDomainArray(prismaScholarships);
   }
-
-  /**
-   * Find scholarships by category
-   */
-  findByCategory(categoryId: string): Promise<Scholarship[]> {
-    return this.prisma.scholarship.findMany({
+  async findByCategory(categoryId: string): Promise<Scholarship[]> {
+    const prismaScholarships = await this.prisma.scholarship.findMany({
       where: {
         categories: {
           some: {
@@ -92,14 +79,11 @@ export class ScholarshipRepository implements IRepositoryScholarship {
       },
       orderBy: { createdAt: 'desc' },
     });
+    return ScholarshipMapper.toDomainArray(prismaScholarships);
   }
 
-  /**
-   * Find scholarship with all relations
-   * Includes: categories, requirements, eligibility, documents
-   */
-  findWithRelations(id: string): Promise<Scholarship | null> {
-    return this.prisma.scholarship.findUnique({
+  async findWithRelations(id: string): Promise<Scholarship | null> {
+    const prismaScholarship = await this.prisma.scholarship.findUnique({
       where: { id },
       include: {
         categories: true,
@@ -108,38 +92,74 @@ export class ScholarshipRepository implements IRepositoryScholarship {
         documents: true,
       },
     });
+    if (!prismaScholarship) return null;
+    return ScholarshipMapper.toDomain(prismaScholarship);
   }
 
-  /**
-   * Find all scholarships with optional filters
-   * @param params - Prisma query arguments (where, include, orderBy, etc.)
-   */
-  findAll(params?: Prisma.ScholarshipFindManyArgs): Promise<Scholarship[]> {
-    return this.prisma.scholarship.findMany(params);
+  async findAll(
+    params?: PaginationParams,
+  ): Promise<PaginatedResult<Scholarship>> {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const [prismaScholarships, total] = await Promise.all([
+      this.prisma.scholarship.findMany({
+        skip,
+        take: limit,
+        orderBy: params?.sortBy
+          ? { [params.sortBy]: params.sortOrder ?? 'asc' }
+          : undefined,
+      }),
+      this.prisma.scholarship.count(),
+    ]);
+
+    return {
+      data: ScholarshipMapper.toDomainArray(prismaScholarships),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
-  /**
-   * Create new scholarship
-   * @param data - Scholarship creation data with type safety
-   */
-  create(data: Prisma.ScholarshipCreateInput): Promise<Scholarship> {
-    return this.prisma.scholarship.create({
-      data,
+  async create(dto: CreateScholarshipDto): Promise<Scholarship> {
+    const prismaScholarship = await this.prisma.scholarship.create({
+      data: {
+        createdBy: dto.createdBy,
+        title: dto.title,
+        slug: dto.slug,
+        description: dto.description,
+        amount: dto.amount,
+        currency: dto.currency,
+        numberOfSlots: dto.numberOfSlots,
+        availableSlots: dto.numberOfSlots, // Initially same as numberOfSlots
+        deadline: dto.deadline,
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        tags: dto.tags,
+        thumbnailUrl: dto.thumbnailUrl,
+      },
     });
+    return ScholarshipMapper.toDomain(prismaScholarship);
   }
 
   /**
    * Update existing scholarship
-   * @param data - Partial scholarship data for update
+   * @param dto - Partial scholarship data for update
    */
-  update(
-    id: string,
-    data: Prisma.ScholarshipUpdateInput,
-  ): Promise<Scholarship> {
-    return this.prisma.scholarship.update({
+  async update(id: string, dto: UpdateScholarshipDto): Promise<Scholarship> {
+    const prismaScholarship = await this.prisma.scholarship.update({
       where: { id },
-      data,
+      data: {
+        title: dto.title,
+        description: dto.description,
+        deadline: dto.deadline,
+        numberOfSlots: dto.numberOfSlots,
+        status: dto.status,
+      },
     });
+    return ScholarshipMapper.toDomain(prismaScholarship);
   }
 
   /**
@@ -156,26 +176,6 @@ export class ScholarshipRepository implements IRepositoryScholarship {
    */
   count(params?: Prisma.ScholarshipCountArgs): Promise<number> {
     return this.prisma.scholarship.count(params);
-  }
-
-  /**
-   * Publish scholarship (set status to OPEN)
-   */
-  async publish(id: string): Promise<void> {
-    await this.prisma.scholarship.update({
-      where: { id },
-      data: { status: ScholarshipStatus.OPEN },
-    });
-  }
-
-  /**
-   * Close scholarship (set status to CLOSED)
-   */
-  async close(id: string): Promise<void> {
-    await this.prisma.scholarship.update({
-      where: { id },
-      data: { status: ScholarshipStatus.CLOSED },
-    });
   }
 
   /**

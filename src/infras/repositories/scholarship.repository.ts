@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ScholarshipStatus, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import { PrismaService } from '../database/prisma/prisma.service';
 import {
@@ -7,7 +7,7 @@ import {
   PaginationParams,
   PaginatedResult,
 } from '../../core/domain/interfaces/repositories';
-import { Scholarship } from '../../core/domain/entities';
+import { Scholarship, ScholarshipStatus } from '../../core/domain/entities';
 import { ScholarshipMapper } from '../../core/domain/mappers';
 import {
   CreateScholarshipDto,

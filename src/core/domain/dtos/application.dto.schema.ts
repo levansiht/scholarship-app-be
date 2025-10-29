@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { UuidSchema, ApplicationStatusEnum } from './dto.constants';
 
 export const CreateApplicationDtoSchema = z.object({
-  scholarshipId: z.string().uuid('scholarshipId must be a valid UUID'),
-  applicantId: z.string().uuid('applicantId must be a valid UUID'),
+  scholarshipId: UuidSchema,
+  applicantId: UuidSchema,
   coverLetter: z
     .string()
     .min(100, 'Cover letter must be at least 100 characters')
@@ -24,18 +25,7 @@ export const UpdateApplicationDtoSchema = z.object({
     .optional()
     .nullable(),
   additionalInfo: z.record(z.string(), z.unknown()).optional().nullable(),
-  status: z
-    .enum([
-      'DRAFT',
-      'SUBMITTED',
-      'UNDER_REVIEW',
-      'APPROVED',
-      'REJECTED',
-      'AWARDED',
-      'WITHDRAWN',
-      'CANCELLED',
-    ])
-    .optional(),
+  status: ApplicationStatusEnum.optional(),
 });
 
 export type UpdateApplicationDtoType = z.infer<

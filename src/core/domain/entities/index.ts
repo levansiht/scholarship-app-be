@@ -1,13 +1,12 @@
-export { User, UserRole, UserStatus, type UserProps } from './user.entity';
+// Re-export entities and their types
+export { User, type UserProps } from './user.entity';
+export { Scholarship, type ScholarshipProps } from './scholarship.entity';
+export { Application, type ApplicationProps } from './application.entity';
 
+// Re-export enums from shared constants for backward compatibility
 export {
-  Scholarship,
+  UserRole,
+  UserStatus,
   ScholarshipStatus,
-  type ScholarshipProps,
-} from './scholarship.entity';
-
-export {
-  Application,
   ApplicationStatus,
-  type ApplicationProps,
-} from './application.entity';
+} from '../../../shared/constants';

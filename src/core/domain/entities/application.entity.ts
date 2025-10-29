@@ -1,13 +1,4 @@
-export enum ApplicationStatus {
-  DRAFT = 'DRAFT',
-  SUBMITTED = 'SUBMITTED',
-  UNDER_REVIEW = 'UNDER_REVIEW',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  AWARDED = 'AWARDED',
-  WITHDRAWN = 'WITHDRAWN',
-  CANCELLED = 'CANCELLED',
-}
+import { ApplicationStatus } from '../../../shared/constants';
 
 export interface ApplicationProps {
   id: string;

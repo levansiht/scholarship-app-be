@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { CurrencyEnum, Currency } from '../../../shared/constants';
 
 export const MoneySchema = z.object({
   amount: z.number().nonnegative('Amount must be non-negative'),
-  currency: z.enum(['VND', 'USD']).default('VND'),
+  currency: CurrencyEnum.default(Currency.VND),
 });
 
 export type MoneySchemaType = z.infer<typeof MoneySchema>;

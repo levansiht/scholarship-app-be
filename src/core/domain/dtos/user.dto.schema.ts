@@ -1,12 +1,11 @@
 import { z } from 'zod';
 import { EmailSchema, PasswordSchema } from '../schemas';
+import { UserRoleEnum, UserStatusEnum } from './dto.constants';
 
 export const CreateUserDtoSchema = z.object({
   email: EmailSchema,
   password: PasswordSchema,
-  role: z.enum(['STUDENT', 'ADMIN', 'SPONSOR'], {
-    message: 'Role must be STUDENT, ADMIN, or SPONSOR',
-  }),
+  role: UserRoleEnum,
 });
 
 export type CreateUserDtoType = z.infer<typeof CreateUserDtoSchema>;
@@ -14,18 +13,14 @@ export type CreateUserDtoType = z.infer<typeof CreateUserDtoSchema>;
 export const UpdateUserDtoSchema = z.object({
   email: EmailSchema.optional(),
   password: PasswordSchema.optional(),
-  status: z
-    .enum(['ACTIVE', 'INACTIVE', 'SUSPENDED'], {
-      message: 'Status must be ACTIVE, INACTIVE, or SUSPENDED',
-    })
-    .optional(),
+  status: UserStatusEnum.optional(),
 });
 
 export type UpdateUserDtoType = z.infer<typeof UpdateUserDtoSchema>;
 
 export const UserFilterDtoSchema = z.object({
-  role: z.enum(['STUDENT', 'ADMIN', 'SPONSOR']).optional(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED']).optional(),
+  role: UserRoleEnum.optional(),
+  status: UserStatusEnum.optional(),
   email: EmailSchema.optional(),
 });
 

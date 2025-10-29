@@ -14,6 +14,8 @@ export const USER_ERRORS = {
 export const SCHOLARSHIP_ERRORS = {
   NOT_FOUND: (scholarshipId: string) =>
     `Scholarship with id ${scholarshipId} not found`,
+  SLUG_EXISTS: (slug: string) =>
+    `Scholarship with slug '${slug}' already exists`,
   ALREADY_PUBLISHED: 'Scholarship is already published',
   ALREADY_CLOSED: 'Scholarship is already closed',
   ALREADY_SUSPENDED: 'Scholarship is already suspended',

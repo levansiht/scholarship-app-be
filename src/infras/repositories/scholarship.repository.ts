@@ -28,6 +28,14 @@ export class ScholarshipRepository implements IRepositoryScholarship {
     return ScholarshipMapper.toDomain(prismaScholarship);
   }
 
+  async findBySlug(slug: string): Promise<Scholarship | null> {
+    const prismaScholarship = await this.prisma.scholarship.findUnique({
+      where: { slug },
+    });
+    if (!prismaScholarship) return null;
+    return ScholarshipMapper.toDomain(prismaScholarship);
+  }
+
   async findBySponsor(sponsorId: string): Promise<Scholarship[]> {
     const prismaScholarships = await this.prisma.scholarship.findMany({
       where: { createdBy: sponsorId },

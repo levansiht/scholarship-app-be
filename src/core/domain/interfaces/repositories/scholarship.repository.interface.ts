@@ -8,6 +8,7 @@ export interface IRepositoryScholarship
     CreateScholarshipDto,
     UpdateScholarshipDto
   > {
+  findBySlug(slug: string): Promise<Scholarship | null>;
   findBySponsor(sponsorId: string): Promise<Scholarship[]>;
   findActive(): Promise<Scholarship[]>;
   findByStatus(status: string): Promise<Scholarship[]>;

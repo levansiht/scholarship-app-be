@@ -6,6 +6,7 @@ import {
   ApplicationStatus,
   Currency,
 } from './enums';
+import { GENERAL_VALIDATION_MESSAGES } from './validation-messages';
 
 export const UserRoleEnum = z.enum(
   [UserRole.STUDENT, UserRole.ADMIN, UserRole.SPONSOR],
@@ -49,4 +50,6 @@ export const ApplicationStatusEnum = z.enum([
   ApplicationStatus.CANCELLED,
 ]);
 
-export const UuidSchema = z.string().uuid('Must be a valid UUID');
+export const UuidSchema = z
+  .string()
+  .uuid(GENERAL_VALIDATION_MESSAGES.UUID.INVALID);

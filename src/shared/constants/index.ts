@@ -1,10 +1,3 @@
-/**
- * @file Shared Constants - Barrel Export
- * @description Single source of truth for enums, validation schemas, and messages
- * Import from this file across ALL layers to ensure consistency
- */
-
-// TypeScript Enums
 export {
   UserRole,
   UserStatus,
@@ -13,7 +6,6 @@ export {
   Currency,
 } from './enums';
 
-// Zod Validation Schemas
 export {
   UserRoleEnum,
   UserStatusEnum,
@@ -23,7 +15,6 @@ export {
   UuidSchema,
 } from './validation';
 
-// Error & Success Messages
 export {
   USER_ERRORS,
   SCHOLARSHIP_ERRORS,
@@ -31,3 +22,17 @@ export {
   VALIDATION_ERRORS,
   SUCCESS_MESSAGES,
 } from './messages';
+
+export {
+  USER_CONSTRAINTS,
+  SCHOLARSHIP_CONSTRAINTS,
+  APPLICATION_CONSTRAINTS,
+  GENERAL_CONSTRAINTS,
+} from './constraints';
+
+export {
+  USER_VALIDATION_MESSAGES,
+  SCHOLARSHIP_VALIDATION_MESSAGES,
+  APPLICATION_VALIDATION_MESSAGES,
+  GENERAL_VALIDATION_MESSAGES,
+} from './validation-messages';

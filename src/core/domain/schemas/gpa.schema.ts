@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { GENERAL_VALIDATION_MESSAGES as MSG } from '../../../shared/constants';
 
 export const GPASchema = z
   .number()
-  .min(0, 'GPA must be at least 0.00')
-  .max(4, 'GPA must not exceed 4.00');
+  .min(0, MSG.GPA.MIN_VALUE)
+  .max(4, MSG.GPA.MAX_VALUE);
 
 export type GPASchemaType = z.infer<typeof GPASchema>;
 

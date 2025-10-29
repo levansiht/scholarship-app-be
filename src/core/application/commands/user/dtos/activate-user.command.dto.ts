@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UserIdSchema } from './user-command.constants';
+import { UuidSchema as UserIdSchema } from '../../../../../shared/constants';
 
 export const ActivateUserCommandDtoSchema = z.object({
   userId: UserIdSchema,

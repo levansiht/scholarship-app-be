@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { EmailSchema, PasswordSchema } from '../schemas';
-import { UserRoleEnum, UserStatusEnum } from './dto.constants';
+import { UserRoleEnum, UserStatusEnum } from '../../../shared/constants';
 
 export const CreateUserDtoSchema = z.object({
   email: EmailSchema,

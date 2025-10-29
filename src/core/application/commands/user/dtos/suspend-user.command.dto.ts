@@ -1,12 +1,15 @@
 import { z } from 'zod';
-import { UserIdSchema } from './user-command.constants';
+import {
+  UuidSchema as UserIdSchema,
+  USER_VALIDATION_MESSAGES as MSG,
+} from '../../../../../shared/constants';
 
 export const SuspendUserCommandDtoSchema = z.object({
   userId: UserIdSchema,
   reason: z
     .string()
-    .min(10, 'Suspension reason must be at least 10 characters')
-    .max(500, 'Suspension reason must not exceed 500 characters'),
+    .min(10, MSG.SUSPENSION_REASON.MIN_LENGTH)
+    .max(500, MSG.SUSPENSION_REASON.MAX_LENGTH),
 });
 
 export type SuspendUserCommandDto = z.infer<typeof SuspendUserCommandDtoSchema>;

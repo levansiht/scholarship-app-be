@@ -1,15 +1,16 @@
 import { validateMoney, type MoneySchemaType } from '../schemas';
+import { Currency } from '../../../shared/constants';
 
 export class Money {
   private readonly _amount: number;
-  private readonly _currency: string;
+  private readonly _currency: Currency;
 
   private constructor(props: MoneySchemaType) {
     this._amount = props.amount;
-    this._currency = props.currency;
+    this._currency = props.currency as Currency;
   }
 
-  static create(amount: number, currency: 'VND' | 'USD' = 'VND'): Money {
+  static create(amount: number, currency: Currency = Currency.VND): Money {
     const validated = validateMoney(amount, currency);
     return new Money(validated);
   }
@@ -18,7 +19,7 @@ export class Money {
     return this._amount;
   }
 
-  get currency(): string {
+  get currency(): Currency {
     return this._currency;
   }
 
@@ -26,7 +27,7 @@ export class Money {
     if (this._currency !== other._currency) {
       throw new Error('Cannot add money with different currencies');
     }
-    return Money.create(this._amount + other._amount, this._currency as 'VND');
+    return Money.create(this._amount + other._amount, this._currency);
   }
 
   subtract(other: Money): Money {
@@ -37,14 +38,14 @@ export class Money {
     if (result < 0) {
       throw new Error('Result cannot be negative');
     }
-    return Money.create(result, this._currency as 'VND');
+    return Money.create(result, this._currency);
   }
 
   multiply(factor: number): Money {
     if (factor < 0) {
       throw new Error('Factor cannot be negative');
     }
-    return Money.create(this._amount * factor, this._currency as 'VND');
+    return Money.create(this._amount * factor, this._currency);
   }
 
   equals(other: Money): boolean {

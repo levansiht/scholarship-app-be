@@ -1,12 +1,5 @@
 import { Money } from '../value-objects';
-
-export enum ScholarshipStatus {
-  DRAFT = 'DRAFT',
-  OPEN = 'OPEN',
-  CLOSED = 'CLOSED',
-  SUSPENDED = 'SUSPENDED',
-  EXPIRED = 'EXPIRED',
-}
+import { ScholarshipStatus } from '../../../shared/constants';
 
 export interface ScholarshipProps {
   id: string;

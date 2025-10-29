@@ -6,8 +6,8 @@ import {
   PaginationParams,
   PaginatedResult,
 } from '../../core/domain/interfaces/repositories';
-import { ApplicationStatus, Prisma } from '@prisma/client';
-import { Application } from '../../core/domain/entities';
+import { Prisma } from '@prisma/client';
+import { Application, ApplicationStatus } from '../../core/domain/entities';
 import { ApplicationMapper } from '../../core/domain/mappers';
 import {
   CreateApplicationDto,

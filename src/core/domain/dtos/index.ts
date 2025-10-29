@@ -9,6 +9,16 @@ export type {
   UpdateApplicationDto,
 } from './application.dto';
 
+// DTO Constants (Shared Zod enums and schemas)
+export {
+  UserRoleEnum,
+  UserStatusEnum,
+  ScholarshipCurrencyEnum,
+  ScholarshipStatusEnum,
+  ApplicationStatusEnum,
+  UuidSchema,
+} from './dto.constants';
+
 // DTO Validation Schemas (Zod)
 export {
   CreateUserDtoSchema,

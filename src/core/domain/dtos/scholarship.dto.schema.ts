@@ -1,7 +1,12 @@
 import { z } from 'zod';
+import {
+  UuidSchema,
+  ScholarshipCurrencyEnum,
+  ScholarshipStatusEnum,
+} from './dto.constants';
 
 export const CreateScholarshipDtoSchema = z.object({
-  createdBy: z.string().uuid('createdBy must be a valid UUID'),
+  createdBy: UuidSchema,
   title: z
     .string()
     .min(10, 'Title must be at least 10 characters')
@@ -19,9 +24,7 @@ export const CreateScholarshipDtoSchema = z.object({
     .min(50, 'Description must be at least 50 characters')
     .max(5000, 'Description must not exceed 5000 characters'),
   amount: z.number().positive('Amount must be positive'),
-  currency: z.enum(['VND', 'USD'], {
-    message: 'Currency must be VND or USD',
-  }),
+  currency: ScholarshipCurrencyEnum,
   numberOfSlots: z
     .number()
     .int('Number of slots must be an integer')
@@ -67,11 +70,7 @@ export const UpdateScholarshipDtoSchema = z.object({
     .int('Number of slots must be an integer')
     .positive('Number of slots must be positive')
     .optional(),
-  status: z
-    .enum(['DRAFT', 'OPEN', 'CLOSED', 'SUSPENDED', 'EXPIRED'], {
-      message: 'Status must be DRAFT, OPEN, CLOSED, SUSPENDED, or EXPIRED',
-    })
-    .optional(),
+  status: ScholarshipStatusEnum.optional(),
 });
 
 export type UpdateScholarshipDtoType = z.infer<

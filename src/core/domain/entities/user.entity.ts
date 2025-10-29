@@ -1,16 +1,5 @@
 import { Email, Password } from '../value-objects';
-
-export enum UserRole {
-  STUDENT = 'STUDENT',
-  ADMIN = 'ADMIN',
-  SPONSOR = 'SPONSOR',
-}
-
-export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  SUSPENDED = 'SUSPENDED',
-}
+import { UserRole, UserStatus } from '../../../shared/constants';
 
 export interface UserProps {
   id: string;

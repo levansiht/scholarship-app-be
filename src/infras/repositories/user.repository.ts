@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UserRole, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
 import { PrismaService } from '../database/prisma/prisma.service';
 import {
@@ -7,7 +7,7 @@ import {
   PaginationParams,
   PaginatedResult,
 } from '../../core/domain/interfaces/repositories';
-import { User } from '../../core/domain/entities';
+import { User, UserRole } from '../../core/domain/entities';
 import { UserMapper } from '../../core/domain/mappers';
 import {
   CreateUserDto,

@@ -1,6 +1,7 @@
 import { Scholarship as PrismaScholarship } from '@prisma/client';
 import { Scholarship, ScholarshipStatus } from '../entities';
 import { Money } from '../value-objects';
+import { Currency } from '../../../shared/constants';
 
 export class ScholarshipMapper {
   static toDomain(prismaScholarship: PrismaScholarship): Scholarship {
@@ -12,7 +13,7 @@ export class ScholarshipMapper {
       description: prismaScholarship.description,
       amount: Money.create(
         Number(prismaScholarship.amount),
-        prismaScholarship.currency as 'VND' | 'USD',
+        prismaScholarship.currency as Currency,
       ),
       numberOfSlots: prismaScholarship.numberOfSlots,
       availableSlots: prismaScholarship.availableSlots,

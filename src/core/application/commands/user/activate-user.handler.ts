@@ -7,15 +7,6 @@ import { User } from '../../../domain/entities';
 import { validateActivateUserCommandDto } from './dtos';
 import { USER_ERRORS, UserStatus } from '../../../../shared/constants';
 
-/**
- * Activate User Command Handler
- * Handles user account activation
- *
- * Business Rules:
- * 1. User must exist
- * 2. User activate() domain method handles business logic
- * 3. Changes are persisted through repository
- */
 @Injectable()
 export class ActivateUserCommandHandler extends BaseCommandHandler<
   ActivateUserCommand,
@@ -29,19 +20,14 @@ export class ActivateUserCommandHandler extends BaseCommandHandler<
   }
 
   async execute(command: ActivateUserCommand): Promise<User> {
-    // 1. Validate command DTO
     const validatedDto = validateActivateUserCommandDto(command.dto);
 
-    // 2. Find user
     const user = await this.userRepository.findById(validatedDto.userId);
     if (!user) {
       throw new NotFoundException(USER_ERRORS.NOT_FOUND(validatedDto.userId));
     }
-
-    // 3. Call domain method (contains business logic)
     user.activate();
 
-    // 4. Persist changes
     const updatedUser = await this.userRepository.update(validatedDto.userId, {
       status: UserStatus.ACTIVE,
     });

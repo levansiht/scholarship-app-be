@@ -1,17 +1,19 @@
+import { UserRole, UserStatus } from '../../../shared/constants';
+
 export interface CreateUserDto {
   email: string;
   password: string;
-  role: 'STUDENT' | 'ADMIN' | 'SPONSOR';
+  role: UserRole;
 }
 
 export interface UpdateUserDto {
   email?: string;
   password?: string;
-  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  status?: UserStatus;
 }
 
 export interface UserFilterDto {
-  role?: 'STUDENT' | 'ADMIN' | 'SPONSOR';
-  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+  role?: UserRole;
+  status?: UserStatus;
   email?: string;
 }

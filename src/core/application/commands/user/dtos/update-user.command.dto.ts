@@ -1,11 +1,10 @@
 import { z } from 'zod';
 import { EmailSchema, PasswordSchema } from '../../../../domain/schemas';
-import { UserIdSchema, UserStatusEnum } from './user-command.constants';
+import {
+  UuidSchema as UserIdSchema,
+  UserStatusEnum,
+} from '../../../../../shared/constants';
 
-/**
- * Update User Command DTO
- * Used for updating existing user information
- */
 export const UpdateUserCommandDtoSchema = z.object({
   userId: UserIdSchema,
   email: EmailSchema.optional(),
@@ -15,9 +14,6 @@ export const UpdateUserCommandDtoSchema = z.object({
 
 export type UpdateUserCommandDto = z.infer<typeof UpdateUserCommandDtoSchema>;
 
-/**
- * Validate Update User Command DTO
- */
 export const validateUpdateUserCommandDto = (
   data: unknown,
 ): UpdateUserCommandDto => {

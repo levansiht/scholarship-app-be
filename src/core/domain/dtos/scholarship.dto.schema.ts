@@ -1,50 +1,44 @@
 import { z } from 'zod';
 import {
   UuidSchema,
-  ScholarshipCurrencyEnum,
+  CurrencyEnum as ScholarshipCurrencyEnum,
   ScholarshipStatusEnum,
-} from './dto.constants';
+  SCHOLARSHIP_VALIDATION_MESSAGES as MSG,
+} from '../../../shared/constants';
 
 export const CreateScholarshipDtoSchema = z.object({
   createdBy: UuidSchema,
   title: z
     .string()
-    .min(10, 'Title must be at least 10 characters')
-    .max(200, 'Title must not exceed 200 characters'),
+    .min(10, MSG.TITLE.MIN_LENGTH)
+    .max(200, MSG.TITLE.MAX_LENGTH),
   slug: z
     .string()
-    .min(3, 'Slug must be at least 3 characters')
-    .max(250, 'Slug must not exceed 250 characters')
-    .regex(
-      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      'Slug must be lowercase with hyphens only',
-    ),
+    .min(3, MSG.SLUG.MIN_LENGTH)
+    .max(250, MSG.SLUG.MAX_LENGTH)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, MSG.SLUG.INVALID_FORMAT),
   description: z
     .string()
-    .min(50, 'Description must be at least 50 characters')
-    .max(5000, 'Description must not exceed 5000 characters'),
-  amount: z.number().positive('Amount must be positive'),
+    .min(50, MSG.DESCRIPTION.MIN_LENGTH)
+    .max(5000, MSG.DESCRIPTION.MAX_LENGTH),
+  amount: z.number().positive(MSG.AMOUNT.POSITIVE),
   currency: ScholarshipCurrencyEnum,
   numberOfSlots: z
     .number()
-    .int('Number of slots must be an integer')
-    .positive('Number of slots must be positive'),
+    .int(MSG.NUMBER_OF_SLOTS.INTEGER)
+    .positive(MSG.NUMBER_OF_SLOTS.POSITIVE),
   deadline: z.coerce
-    .date({ message: 'Deadline must be a valid date' })
+    .date({ message: MSG.DEADLINE.INVALID })
     .refine((date) => date > new Date(), {
-      message: 'Deadline must be in the future',
+      message: MSG.DEADLINE.FUTURE,
     }),
-  startDate: z.coerce.date({ message: 'Start date must be a valid date' }),
+  startDate: z.coerce.date({ message: MSG.START_DATE.INVALID }),
   endDate: z.coerce
-    .date({ message: 'End date must be a valid date' })
+    .date({ message: MSG.END_DATE.INVALID })
     .optional()
     .nullable(),
   tags: z.array(z.string()).default([]),
-  thumbnailUrl: z
-    .string()
-    .url('Thumbnail URL must be valid')
-    .optional()
-    .nullable(),
+  thumbnailUrl: z.string().url(MSG.THUMBNAIL_URL.INVALID).optional().nullable(),
 });
 
 export type CreateScholarshipDtoType = z.infer<
@@ -54,21 +48,19 @@ export type CreateScholarshipDtoType = z.infer<
 export const UpdateScholarshipDtoSchema = z.object({
   title: z
     .string()
-    .min(10, 'Title must be at least 10 characters')
-    .max(200, 'Title must not exceed 200 characters')
+    .min(10, MSG.TITLE.MIN_LENGTH)
+    .max(200, MSG.TITLE.MAX_LENGTH)
     .optional(),
   description: z
     .string()
-    .min(50, 'Description must be at least 50 characters')
-    .max(5000, 'Description must not exceed 5000 characters')
+    .min(50, MSG.DESCRIPTION.MIN_LENGTH)
+    .max(5000, MSG.DESCRIPTION.MAX_LENGTH)
     .optional(),
-  deadline: z.coerce
-    .date({ message: 'Deadline must be a valid date' })
-    .optional(),
+  deadline: z.coerce.date({ message: MSG.DEADLINE.INVALID }).optional(),
   numberOfSlots: z
     .number()
-    .int('Number of slots must be an integer')
-    .positive('Number of slots must be positive')
+    .int(MSG.NUMBER_OF_SLOTS.INTEGER)
+    .positive(MSG.NUMBER_OF_SLOTS.POSITIVE)
     .optional(),
   status: ScholarshipStatusEnum.optional(),
 });

@@ -1,13 +1,17 @@
 import { z } from 'zod';
-import { UuidSchema, ApplicationStatusEnum } from './dto.constants';
+import {
+  UuidSchema,
+  ApplicationStatusEnum,
+  APPLICATION_VALIDATION_MESSAGES as MSG,
+} from '../../../shared/constants';
 
 export const CreateApplicationDtoSchema = z.object({
   scholarshipId: UuidSchema,
   applicantId: UuidSchema,
   coverLetter: z
     .string()
-    .min(100, 'Cover letter must be at least 100 characters')
-    .max(2000, 'Cover letter must not exceed 2000 characters')
+    .min(100, MSG.COVER_LETTER.MIN_LENGTH)
+    .max(2000, MSG.COVER_LETTER.MAX_LENGTH)
     .optional()
     .nullable(),
   additionalInfo: z.record(z.string(), z.unknown()).optional().nullable(),
@@ -20,8 +24,8 @@ export type CreateApplicationDtoType = z.infer<
 export const UpdateApplicationDtoSchema = z.object({
   coverLetter: z
     .string()
-    .min(100, 'Cover letter must be at least 100 characters')
-    .max(2000, 'Cover letter must not exceed 2000 characters')
+    .min(100, MSG.COVER_LETTER.MIN_LENGTH)
+    .max(2000, MSG.COVER_LETTER.MAX_LENGTH)
     .optional()
     .nullable(),
   additionalInfo: z.record(z.string(), z.unknown()).optional().nullable(),

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { PasswordSchema } from '../../../../domain/schemas';
-import { UserIdSchema } from './user-command.constants';
+import { UuidSchema as UserIdSchema } from '../../../../../shared/constants';
 
 export const ChangePasswordCommandDtoSchema = z.object({
   userId: UserIdSchema,

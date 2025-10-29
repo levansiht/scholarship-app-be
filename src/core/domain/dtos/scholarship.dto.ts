@@ -1,10 +1,12 @@
+import { Currency, ScholarshipStatus } from '../../../shared/constants';
+
 export interface CreateScholarshipDto {
   createdBy: string;
   title: string;
   slug: string;
   description: string;
   amount: number;
-  currency: 'VND' | 'USD';
+  currency: Currency;
   numberOfSlots: number;
   deadline: Date;
   startDate: Date;
@@ -18,5 +20,5 @@ export interface UpdateScholarshipDto {
   description?: string;
   deadline?: Date;
   numberOfSlots?: number;
-  status?: 'DRAFT' | 'OPEN' | 'CLOSED' | 'SUSPENDED' | 'EXPIRED';
+  status?: ScholarshipStatus;
 }

@@ -7,6 +7,7 @@ export interface CreateApplicationDto {
 
 export interface UpdateApplicationDto {
   coverLetter?: string;
+  documents?: string[];
   additionalInfo?: Record<string, unknown>;
   status?:
     | 'DRAFT'

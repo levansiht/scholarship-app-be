@@ -7,8 +7,11 @@ import {
   Body,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
@@ -17,20 +20,27 @@ import {
   ApiParam,
   ApiQuery,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { JwtAuthGuard, RolesGuard, Roles } from '../../../infras/auth';
 import { CurrentUser } from '../../../infras/auth/current-user.decorator';
 import { User, ApplicationStatus } from '../../../core/domain/entities';
 import { UserRole } from '../../../shared/constants';
+import { UploadedFile } from '../../../core/domain/value-objects';
 import { SubmitApplicationCommand } from '../../../core/application/commands/application/submit-application/submit-application.command';
 import { ApproveApplicationCommand } from '../../../core/application/commands/application/approve-application/approve-application.command';
 import { RejectApplicationCommand } from '../../../core/application/commands/application/reject-application/reject-application.command';
 import { WithdrawApplicationCommand } from '../../../core/application/commands/application/withdraw-application/withdraw-application.command';
+import { UploadApplicationDocumentsCommand } from '../../../core/application/commands/application/upload-documents/upload-documents.command';
 import { GetApplicationByIdQuery } from '../../../core/application/queries/application/get-application-by-id/get-application-by-id.query';
 import { ListApplicationsQuery } from '../../../core/application/queries/application/list-applications/list-applications.query';
 import { SubmitApplicationHttpDto } from '../dtos/submit-application-http.dto';
 import { ApproveApplicationHttpDto } from '../dtos/approve-application-http.dto';
 import { RejectApplicationHttpDto } from '../dtos/reject-application-http.dto';
+import {
+  UploadApplicationDocumentsHttpDto,
+  UploadApplicationDocumentsResponseDto,
+} from '../dtos/upload-application-documents-http.dto';
 import { Application } from '../../../core/domain/entities/application.entity';
 
 @Controller('applications')
@@ -101,8 +111,8 @@ export class ApplicationController {
     description: 'List of applications',
   })
   async listApplications(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
     @Query('status') status?: string,
     @Query('scholarshipId') scholarshipId?: string,
   ): Promise<Application[]> {
@@ -112,9 +122,12 @@ export class ApplicationController {
         ] ?? undefined)
       : undefined;
 
+    const pageNumber = page ? parseInt(page, 10) : undefined;
+    const limitNumber = limit ? parseInt(limit, 10) : undefined;
+
     const query = new ListApplicationsQuery(
-      page,
-      limit,
+      pageNumber,
+      limitNumber,
       statusEnum,
       scholarshipId,
     );
@@ -185,5 +198,44 @@ export class ApplicationController {
   async withdrawApplication(@Param('id') id: string): Promise<Application> {
     const command = new WithdrawApplicationCommand(id);
     return await this.commandBus.execute(command);
+  }
+
+  @Post(':id/documents')
+  @ApiOperation({
+    summary: '[Student] Upload documents for an application',
+    description:
+      'Upload supporting documents (max 5 files, 10MB each). Allowed types: PDF, DOC, DOCX, JPG, PNG',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiParam({ name: 'id', description: 'Application UUID' })
+  @ApiBody({ type: UploadApplicationDocumentsHttpDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Documents uploaded successfully',
+    type: UploadApplicationDocumentsResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid file type or size' })
+  @ApiResponse({ status: 403, description: 'Not authorized' })
+  @ApiResponse({ status: 404, description: 'Application not found' })
+  @UseInterceptors(FilesInterceptor('files', 5))
+  async uploadDocuments(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+    @UploadedFiles() files: Express.Multer.File[],
+  ): Promise<UploadApplicationDocumentsResponseDto> {
+    const uploadedFiles = UploadedFile.createMany(files, 5);
+
+    const command = new UploadApplicationDocumentsCommand(
+      id,
+      user.id,
+      uploadedFiles,
+    );
+
+    const urls = await this.commandBus.execute<
+      UploadApplicationDocumentsCommand,
+      string[]
+    >(command);
+
+    return { urls };
   }
 }

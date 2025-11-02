@@ -7,6 +7,7 @@ import { AuthModule } from './presentation/http/modules/auth.module';
 import { UserModule } from './presentation/http/modules/user.module';
 import { ScholarshipModule } from './presentation/http/modules/scholarship.module';
 import { ApplicationModule } from './presentation/http/modules/application.module';
+import { HealthController } from './presentation/http/controllers/health.controller';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { ApplicationModule } from './presentation/http/modules/application.modul
     ScholarshipModule,
     ApplicationModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}

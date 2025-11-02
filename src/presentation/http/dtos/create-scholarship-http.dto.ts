@@ -1,13 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateScholarshipHttpDto {
-  @ApiPropertyOptional({
-    description:
-      'User ID who creates the scholarship (UUID). For testing only - will be removed when auth is implemented. Get this from GET /users endpoint (use admin user).',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  createdBy?: string;
-
   @ApiProperty({
     description: 'Scholarship title',
     example: 'Full Tuition Scholarship 2024',

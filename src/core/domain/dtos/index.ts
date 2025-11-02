@@ -1,4 +1,3 @@
-// DTOs (interfaces)
 export type { CreateUserDto, UpdateUserDto, UserFilterDto } from './user.dto';
 export type {
   CreateScholarshipDto,
@@ -9,7 +8,6 @@ export type {
   UpdateApplicationDto,
 } from './application.dto';
 
-// DTO Constants - Re-export from shared for convenience
 export {
   UserRoleEnum,
   UserStatusEnum,
@@ -19,7 +17,6 @@ export {
   UuidSchema,
 } from '../../../shared/constants';
 
-// DTO Validation Schemas (Zod)
 export {
   CreateUserDtoSchema,
   UpdateUserDtoSchema,
@@ -49,3 +46,7 @@ export {
   type CreateApplicationDtoType,
   type UpdateApplicationDtoType,
 } from './application.dto.schema';
+
+export { RegisterDtoSchema, type RegisterDto } from './register.dto.schema';
+
+export { LoginDtoSchema, type LoginDto } from './login.dto.schema';

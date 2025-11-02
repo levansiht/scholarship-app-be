@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -15,7 +16,11 @@ import {
   ApiBody,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
+import { CurrentUser } from '../../../infras/auth/current-user.decorator';
+import { User, ApplicationStatus } from '../../../core/domain/entities';
 import { SubmitApplicationCommand } from '../../../core/application/commands/application/submit-application/submit-application.command';
 import { ApproveApplicationCommand } from '../../../core/application/commands/application/approve-application/approve-application.command';
 import { RejectApplicationCommand } from '../../../core/application/commands/application/reject-application/reject-application.command';
@@ -30,6 +35,8 @@ import { Application } from '../../../core/domain/entities/application.entity';
 
 @ApiTags('Applications')
 @Controller('applications')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('JWT-auth')
 export class ApplicationController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -44,16 +51,14 @@ export class ApplicationController {
     description: 'Application submitted successfully',
   })
   @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async submitApplication(
     @Body() dto: SubmitApplicationHttpDto,
+    @CurrentUser() user: User,
   ): Promise<Application> {
-    // TODO: Get applicantId from authenticated user context
-    // Using a valid UUID v4 for testing purposes until authentication is implemented
-    const TEMP_USER_UUID = '550e8400-e29b-41d4-a716-446655440001';
-
     const command = new SubmitApplicationCommand({
       scholarshipId: dto.scholarshipId,
-      applicantId: TEMP_USER_UUID, // TODO: Replace with auth context
+      applicantId: user.id,
       additionalInfo: dto.documents,
     });
     return await this.commandBus.execute(command);
@@ -101,10 +106,16 @@ export class ApplicationController {
     @Query('status') status?: string,
     @Query('scholarshipId') scholarshipId?: string,
   ): Promise<Application[]> {
+    const statusEnum: ApplicationStatus | undefined = status
+      ? ((ApplicationStatus as unknown as Record<string, ApplicationStatus>)[
+          status
+        ] ?? undefined)
+      : undefined;
+
     const query = new ListApplicationsQuery(
       page,
       limit,
-      status as any,
+      statusEnum,
       scholarshipId,
     );
     return await this.queryBus.execute(query);
@@ -133,10 +144,7 @@ export class ApplicationController {
     description: 'Application approved successfully',
   })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  async approveApplication(
-    @Param('id') id: string,
-    // @Body() _dto: ApproveApplicationHttpDto,
-  ): Promise<Application> {
+  async approveApplication(@Param('id') id: string): Promise<Application> {
     const command = new ApproveApplicationCommand(id);
     return await this.commandBus.execute(command);
   }

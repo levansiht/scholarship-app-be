@@ -6,9 +6,17 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
 import {
   CreateUserCommand,
   UpdateUserCommand,
@@ -31,6 +39,8 @@ import { UserRole } from '../../../shared/constants';
 
 @ApiTags('Users')
 @Controller('users')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('JWT-auth')
 export class UserController {
   constructor(
     private readonly commandBus: CommandBus,

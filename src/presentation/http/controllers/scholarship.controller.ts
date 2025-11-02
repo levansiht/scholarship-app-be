@@ -6,6 +6,7 @@ import {
   Param,
   Body,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -15,7 +16,11 @@ import {
   ApiBody,
   ApiParam,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
+import { CurrentUser } from '../../../infras/auth/current-user.decorator';
+import { User } from '../../../core/domain/entities';
 import { CreateScholarshipCommand } from '../../../core/application/commands/scholarship/create-scholarship/create-scholarship.command';
 import { UpdateScholarshipCommand } from '../../../core/application/commands/scholarship/update-scholarship/update-scholarship.command';
 import { PublishScholarshipCommand } from '../../../core/application/commands/scholarship/publish-scholarship/publish-scholarship.command';
@@ -32,6 +37,8 @@ import type { PaginatedResult } from '../../../core/domain/interfaces/repositori
 
 @ApiTags('Scholarships')
 @Controller('scholarships')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('JWT-auth')
 export class ScholarshipController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -46,22 +53,20 @@ export class ScholarshipController {
     description: 'Scholarship created successfully',
   })
   @ApiResponse({ status: 400, description: 'Invalid input' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async createScholarship(
     @Body() dto: CreateScholarshipHttpDto,
+    @CurrentUser() user: User,
   ): Promise<Scholarship> {
-    // TODO: Get createdBy from authenticated user context
-    // For testing: either provide createdBy in request, or use default UUID
-    // Get admin UUID by calling GET /users endpoint first
-    const TEMP_ADMIN_UUID = '550e8400-e29b-41d4-a716-446655440000';
-    const createdBy = dto.createdBy || TEMP_ADMIN_UUID;
+    const createdBy = user.id;
 
     const command = new CreateScholarshipCommand({
-      createdBy, // TODO: Replace with auth context
+      createdBy,
       title: dto.title,
-      slug: dto.title.toLowerCase().replace(/\s+/g, '-'), // Generate slug from title
+      slug: dto.title.toLowerCase().replace(/\s+/g, '-'),
       description: dto.description,
       amount: dto.amount,
-      currency: Currency.VND, // Default currency
+      currency: Currency.VND,
       numberOfSlots: dto.numberOfSlots,
       deadline: new Date(dto.deadline),
       startDate: new Date(dto.startDate),

@@ -12,6 +12,9 @@ import {
 @Module({
   imports: [DatabaseModule],
   providers: [
+    UserRepository,
+    ScholarshipRepository,
+    ApplicationRepository,
     {
       provide: USER_REPOSITORY,
       useClass: UserRepository,
@@ -25,6 +28,13 @@ import {
       useClass: ApplicationRepository,
     },
   ],
-  exports: [USER_REPOSITORY, SCHOLARSHIP_REPOSITORY, APPLICATION_REPOSITORY],
+  exports: [
+    UserRepository,
+    ScholarshipRepository,
+    ApplicationRepository,
+    USER_REPOSITORY,
+    SCHOLARSHIP_REPOSITORY,
+    APPLICATION_REPOSITORY,
+  ],
 })
 export class RepositoriesModule {}

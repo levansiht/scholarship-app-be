@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
@@ -10,9 +11,11 @@ import { ApproveApplicationCommand } from './approve-application.command';
 import { Application } from '../../../../domain/entities/application.entity';
 import type { IRepositoryApplication } from '../../../../domain/interfaces/repositories/application.repository.interface';
 import { APPLICATION_REPOSITORY } from '../../../../domain/interfaces/repositories/application.repository.interface';
+import type { IRepositoryScholarship } from '../../../../domain/interfaces/repositories/scholarship.repository.interface';
+import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories/scholarship.repository.interface';
 import { APPLICATION_ERRORS } from '../../../../../shared/constants/messages';
 import { UuidSchema } from '../../../../../shared/constants/validation';
-import { ApplicationStatus } from '../../../../../shared/constants';
+import { ApplicationStatus, UserRole } from '../../../../../shared/constants';
 
 @Injectable()
 @CommandHandler(ApproveApplicationCommand)
@@ -23,6 +26,8 @@ export class ApproveApplicationCommandHandler extends BaseCommandHandler<
   constructor(
     @Inject(APPLICATION_REPOSITORY)
     private readonly applicationRepository: IRepositoryApplication,
+    @Inject(SCHOLARSHIP_REPOSITORY)
+    private readonly scholarshipRepository: IRepositoryScholarship,
   ) {
     super();
   }
@@ -39,6 +44,21 @@ export class ApproveApplicationCommandHandler extends BaseCommandHandler<
       throw new NotFoundException(
         APPLICATION_ERRORS.NOT_FOUND(command.applicationId),
       );
+    }
+
+    // Ownership check: SPONSOR can only approve applications for their own scholarships
+    if (command.userRole === UserRole.SPONSOR) {
+      const scholarship = await this.scholarshipRepository.findById(
+        application.scholarshipId,
+      );
+      if (!scholarship) {
+        throw new NotFoundException('Scholarship not found');
+      }
+      if (scholarship.createdBy !== command.userId) {
+        throw new ForbiddenException(
+          'You can only approve applications for scholarships you created',
+        );
+      }
     }
 
     // Call domain logic

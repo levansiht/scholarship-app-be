@@ -18,9 +18,10 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard, Roles } from '../../../infras/auth';
 import { CurrentUser } from '../../../infras/auth/current-user.decorator';
 import { User } from '../../../core/domain/entities';
+import { UserRole } from '../../../shared/constants';
 import { CreateScholarshipCommand } from '../../../core/application/commands/scholarship/create-scholarship/create-scholarship.command';
 import { UpdateScholarshipCommand } from '../../../core/application/commands/scholarship/update-scholarship/update-scholarship.command';
 import { PublishScholarshipCommand } from '../../../core/application/commands/scholarship/publish-scholarship/publish-scholarship.command';
@@ -35,8 +36,8 @@ import { ScholarshipStatus, Currency } from '../../../shared/constants/enums';
 import { Scholarship } from '../../../core/domain/entities/scholarship.entity';
 import type { PaginatedResult } from '../../../core/domain/interfaces/repositories/base.repository.interface';
 
-@ApiTags('Scholarships')
 @Controller('scholarships')
+@ApiTags('Scholarships')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class ScholarshipController {
@@ -46,7 +47,9 @@ export class ScholarshipController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new scholarship (Admin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SPONSOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: '[Admin/Sponsor] Create a new scholarship' })
   @ApiBody({ type: CreateScholarshipHttpDto })
   @ApiResponse({
     status: 201,
@@ -54,6 +57,10 @@ export class ScholarshipController {
   })
   @ApiResponse({ status: 400, description: 'Invalid input' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin or Sponsor role required',
+  })
   async createScholarship(
     @Body() dto: CreateScholarshipHttpDto,
     @CurrentUser() user: User,
@@ -132,7 +139,11 @@ export class ScholarshipController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update scholarship details (Admin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SPONSOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({
+    summary: '[Admin/Sponsor] Update scholarship details (Sponsor: own only)',
+  })
   @ApiParam({ name: 'id', description: 'Scholarship UUID' })
   @ApiBody({ type: UpdateScholarshipHttpDto })
   @ApiResponse({
@@ -140,43 +151,75 @@ export class ScholarshipController {
     description: 'Scholarship updated successfully',
   })
   @ApiResponse({ status: 404, description: 'Scholarship not found' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin/Sponsor role required or not owner',
+  })
   async updateScholarship(
     @Param('id') id: string,
     @Body() dto: UpdateScholarshipHttpDto,
+    @CurrentUser() user: User,
   ): Promise<Scholarship> {
-    const command = new UpdateScholarshipCommand(id, {
-      title: dto.title,
-      description: dto.description,
-      deadline: dto.deadline ? new Date(dto.deadline) : undefined,
-      numberOfSlots: dto.numberOfSlots,
-      status: dto.status as ScholarshipStatus,
-    });
+    const command = new UpdateScholarshipCommand(
+      id,
+      {
+        title: dto.title,
+        description: dto.description,
+        deadline: dto.deadline ? new Date(dto.deadline) : undefined,
+        numberOfSlots: dto.numberOfSlots,
+        status: dto.status as ScholarshipStatus,
+      },
+      user.id,
+      user.role,
+    );
     return await this.commandBus.execute(command);
   }
 
   @Patch(':id/publish')
-  @ApiOperation({ summary: 'Publish a scholarship (Admin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SPONSOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({
+    summary: '[Admin/Sponsor] Publish a scholarship (Sponsor: own only)',
+  })
   @ApiParam({ name: 'id', description: 'Scholarship UUID' })
   @ApiResponse({
     status: 200,
     description: 'Scholarship published successfully',
   })
   @ApiResponse({ status: 404, description: 'Scholarship not found' })
-  async publishScholarship(@Param('id') id: string): Promise<Scholarship> {
-    const command = new PublishScholarshipCommand(id);
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin/Sponsor role required or not owner',
+  })
+  async publishScholarship(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<Scholarship> {
+    const command = new PublishScholarshipCommand(id, user.id, user.role);
     return await this.commandBus.execute(command);
   }
 
   @Patch(':id/close')
-  @ApiOperation({ summary: 'Close a scholarship (Admin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SPONSOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({
+    summary: '[Admin/Sponsor] Close a scholarship (Sponsor: own only)',
+  })
   @ApiParam({ name: 'id', description: 'Scholarship UUID' })
   @ApiResponse({
     status: 200,
     description: 'Scholarship closed successfully',
   })
   @ApiResponse({ status: 404, description: 'Scholarship not found' })
-  async closeScholarship(@Param('id') id: string): Promise<Scholarship> {
-    const command = new CloseScholarshipCommand(id);
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin/Sponsor role required or not owner',
+  })
+  async closeScholarship(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<Scholarship> {
+    const command = new CloseScholarshipCommand(id, user.id, user.role);
     return await this.commandBus.execute(command);
   }
 }

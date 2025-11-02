@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { GetApplicationByIdQuery } from './get-application-by-id.query';
 import { Application } from '../../../../domain/entities/application.entity';
@@ -8,6 +9,7 @@ import { UuidSchema } from '../../../../../shared/constants/validation';
 import { APPLICATION_ERRORS } from '../../../../../shared/constants/messages';
 
 @Injectable()
+@QueryHandler(GetApplicationByIdQuery)
 export class GetApplicationByIdQueryHandler extends BaseQueryHandler<
   GetApplicationByIdQuery,
   Application

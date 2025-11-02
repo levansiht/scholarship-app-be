@@ -1,4 +1,5 @@
 import { Injectable, Inject, ConflictException } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../common/base.command-handler';
 import { CreateUserCommand } from './create-user.command';
 import { USER_REPOSITORY } from '../../../domain/interfaces/repositories';
@@ -9,6 +10,7 @@ import { USER_ERRORS } from '../../../../shared/constants';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
+@CommandHandler(CreateUserCommand)
 export class CreateUserCommandHandler extends BaseCommandHandler<
   CreateUserCommand,
   User

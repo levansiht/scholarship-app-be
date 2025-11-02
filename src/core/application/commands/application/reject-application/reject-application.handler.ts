@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
 import { RejectApplicationCommand } from './reject-application.command';
 import { Application } from '../../../../domain/entities/application.entity';
@@ -14,6 +15,7 @@ import { UuidSchema } from '../../../../../shared/constants/validation';
 import { ApplicationStatus } from '../../../../../shared/constants';
 
 @Injectable()
+@CommandHandler(RejectApplicationCommand)
 export class RejectApplicationCommandHandler extends BaseCommandHandler<
   RejectApplicationCommand,
   Application

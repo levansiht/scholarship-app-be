@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
 import { UpdateScholarshipCommand } from './update-scholarship.command';
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories';
@@ -8,6 +9,7 @@ import { UpdateScholarshipDtoSchema } from '../../../../domain/dtos/scholarship.
 import { SCHOLARSHIP_ERRORS } from '../../../../../shared/constants';
 
 @Injectable()
+@CommandHandler(UpdateScholarshipCommand)
 export class UpdateScholarshipCommandHandler extends BaseCommandHandler<
   UpdateScholarshipCommand,
   Scholarship

@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { GetScholarshipByIdQuery } from './get-scholarship-by-id.query';
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories';
@@ -10,6 +11,7 @@ import {
 } from '../../../../../shared/constants';
 
 @Injectable()
+@QueryHandler(GetScholarshipByIdQuery)
 export class GetScholarshipByIdQueryHandler extends BaseQueryHandler<
   GetScholarshipByIdQuery,
   Scholarship

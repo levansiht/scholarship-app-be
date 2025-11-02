@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { SearchScholarshipsQuery } from './search-scholarships.query';
 import { Scholarship } from '../../../../domain/entities/scholarship.entity';
@@ -6,6 +7,7 @@ import type { IRepositoryScholarship } from '../../../../domain/interfaces/repos
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories/scholarship.repository.interface';
 
 @Injectable()
+@QueryHandler(SearchScholarshipsQuery)
 export class SearchScholarshipsQueryHandler extends BaseQueryHandler<
   SearchScholarshipsQuery,
   Scholarship[]

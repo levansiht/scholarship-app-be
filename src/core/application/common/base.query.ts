@@ -5,6 +5,6 @@ export abstract class BaseQuery implements IQuery {
 
   constructor() {
     this.timestamp = new Date();
-    Object.freeze(this);
+    // Remove Object.freeze - it prevents child classes from adding properties
   }
 }

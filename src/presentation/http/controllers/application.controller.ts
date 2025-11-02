@@ -18,23 +18,23 @@ import {
   ApiQuery,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard, Roles } from '../../../infras/auth';
 import { CurrentUser } from '../../../infras/auth/current-user.decorator';
 import { User, ApplicationStatus } from '../../../core/domain/entities';
+import { UserRole } from '../../../shared/constants';
 import { SubmitApplicationCommand } from '../../../core/application/commands/application/submit-application/submit-application.command';
 import { ApproveApplicationCommand } from '../../../core/application/commands/application/approve-application/approve-application.command';
 import { RejectApplicationCommand } from '../../../core/application/commands/application/reject-application/reject-application.command';
 import { WithdrawApplicationCommand } from '../../../core/application/commands/application/withdraw-application/withdraw-application.command';
 import { GetApplicationByIdQuery } from '../../../core/application/queries/application/get-application-by-id/get-application-by-id.query';
 import { ListApplicationsQuery } from '../../../core/application/queries/application/list-applications/list-applications.query';
-import { GetUserApplicationsQuery } from '../../../core/application/queries/application/get-user-applications/get-user-applications.query';
 import { SubmitApplicationHttpDto } from '../dtos/submit-application-http.dto';
 import { ApproveApplicationHttpDto } from '../dtos/approve-application-http.dto';
 import { RejectApplicationHttpDto } from '../dtos/reject-application-http.dto';
 import { Application } from '../../../core/domain/entities/application.entity';
 
-@ApiTags('Applications')
 @Controller('applications')
+@ApiTags('Applications')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class ApplicationController {
@@ -44,7 +44,7 @@ export class ApplicationController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Submit a new application' })
+  @ApiOperation({ summary: '[Student] Submit a new application' })
   @ApiBody({ type: SubmitApplicationHttpDto })
   @ApiResponse({
     status: 201,
@@ -79,7 +79,7 @@ export class ApplicationController {
 
   @Get()
   @ApiOperation({
-    summary: 'List all applications with filters (Admin only)',
+    summary: 'List all applications with filters',
   })
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
@@ -121,22 +121,13 @@ export class ApplicationController {
     return await this.queryBus.execute(query);
   }
 
-  @Get('user/:userId')
-  @ApiOperation({ summary: "Get a specific user's applications" })
-  @ApiParam({ name: 'userId', description: 'User UUID' })
-  @ApiResponse({
-    status: 200,
-    description: "User's applications",
-  })
-  async getUserApplications(
-    @Param('userId') userId: string,
-  ): Promise<Application[]> {
-    const query = new GetUserApplicationsQuery(userId);
-    return await this.queryBus.execute(query);
-  }
-
   @Patch(':id/approve')
-  @ApiOperation({ summary: 'Approve an application (Admin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SPONSOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({
+    summary:
+      '[Admin/Sponsor] Approve an application (Sponsor: own scholarships only)',
+  })
   @ApiParam({ name: 'id', description: 'Application UUID' })
   @ApiBody({ type: ApproveApplicationHttpDto })
   @ApiResponse({
@@ -144,13 +135,25 @@ export class ApplicationController {
     description: 'Application approved successfully',
   })
   @ApiResponse({ status: 404, description: 'Application not found' })
-  async approveApplication(@Param('id') id: string): Promise<Application> {
-    const command = new ApproveApplicationCommand(id);
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin/Sponsor role required or not owner',
+  })
+  async approveApplication(
+    @Param('id') id: string,
+    @CurrentUser() user: User,
+  ): Promise<Application> {
+    const command = new ApproveApplicationCommand(id, user.id, user.role);
     return await this.commandBus.execute(command);
   }
 
   @Patch(':id/reject')
-  @ApiOperation({ summary: 'Reject an application (Admin only)' })
+  @Roles(UserRole.ADMIN, UserRole.SPONSOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({
+    summary:
+      '[Admin/Sponsor] Reject an application (Sponsor: own scholarships only)',
+  })
   @ApiParam({ name: 'id', description: 'Application UUID' })
   @ApiBody({ type: RejectApplicationHttpDto })
   @ApiResponse({
@@ -158,16 +161,21 @@ export class ApplicationController {
     description: 'Application rejected successfully',
   })
   @ApiResponse({ status: 404, description: 'Application not found' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin/Sponsor role required or not owner',
+  })
   async rejectApplication(
     @Param('id') id: string,
+    @CurrentUser() user: User,
     // @Body() _dto: RejectApplicationHttpDto,
   ): Promise<Application> {
-    const command = new RejectApplicationCommand(id);
+    const command = new RejectApplicationCommand(id, user.id, user.role);
     return await this.commandBus.execute(command);
   }
 
   @Patch(':id/withdraw')
-  @ApiOperation({ summary: 'Withdraw an application (User only)' })
+  @ApiOperation({ summary: '[Student] Withdraw an application' })
   @ApiParam({ name: 'id', description: 'Application UUID' })
   @ApiResponse({
     status: 200,

@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   Patch,
-  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -16,9 +15,9 @@ import {
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
+import { JwtAuthGuard, RolesGuard, Roles } from '../../../infras/auth';
+import { UserRole } from '../../../shared/constants';
 import {
-  CreateUserCommand,
   UpdateUserCommand,
   ChangePasswordCommand,
   SuspendUserCommand,
@@ -30,15 +29,13 @@ import {
 } from '../../../core/application/queries/user';
 import type { User } from '../../../core/domain/entities';
 import {
-  CreateUserHttpDto,
   UpdateUserHttpDto,
   ChangePasswordHttpDto,
   SuspendUserHttpDto,
 } from '../dtos';
-import { UserRole } from '../../../shared/constants';
 
-@ApiTags('Users')
 @Controller('users')
+@ApiTags('Users')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('JWT-auth')
 export class UserController {
@@ -46,19 +43,6 @@ export class UserController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-
-  @Post()
-  @ApiOperation({ summary: 'Create a new user (role: STUDENT by default)' })
-  @ApiBody({ type: CreateUserHttpDto })
-  @ApiResponse({ status: 201, description: 'User created' })
-  async createUser(@Body() dto: CreateUserHttpDto): Promise<User> {
-    const command = new CreateUserCommand({
-      email: dto.email,
-      password: dto.password,
-      role: UserRole.STUDENT, // Always STUDENT on registration
-    });
-    return await this.commandBus.execute(command);
-  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
@@ -69,8 +53,11 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'List users with pagination' })
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: '[Admin Only] List users with pagination' })
   @ApiResponse({ status: 200, description: 'Users list' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async listUsers(
     @Query('page') page?: string,
     @Query('limit') limit?: string,
@@ -83,9 +70,12 @@ export class UserController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update user (admin only - can change role)' })
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: '[Admin Only] Update user (can change role)' })
   @ApiBody({ type: UpdateUserHttpDto })
   @ApiResponse({ status: 200, description: 'User updated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async updateUser(
     @Param('id') id: string,
     @Body() dto: UpdateUserHttpDto,
@@ -114,9 +104,12 @@ export class UserController {
   }
 
   @Patch(':id/suspend')
-  @ApiOperation({ summary: 'Suspend user (admin only)' })
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: '[Admin Only] Suspend user' })
   @ApiBody({ type: SuspendUserHttpDto })
   @ApiResponse({ status: 200, description: 'User suspended' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async suspendUser(
     @Param('id') id: string,
     @Body() dto: SuspendUserHttpDto,
@@ -129,8 +122,11 @@ export class UserController {
   }
 
   @Patch(':id/activate')
-  @ApiOperation({ summary: 'Activate user (admin only)' })
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: '[Admin Only] Activate user' })
   @ApiResponse({ status: 200, description: 'User activated' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin role required' })
   async activateUser(@Param('id') id: string): Promise<User> {
     const command = new ActivateUserCommand({ userId: id });
     return await this.commandBus.execute(command);

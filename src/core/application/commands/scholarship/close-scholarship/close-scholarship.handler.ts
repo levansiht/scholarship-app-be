@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
@@ -10,7 +11,7 @@ import { CloseScholarshipCommand } from './close-scholarship.command';
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories';
 import type { IRepositoryScholarship } from '../../../../domain/interfaces/repositories';
 import { Scholarship, ScholarshipStatus } from '../../../../domain/entities';
-import { SCHOLARSHIP_ERRORS } from '../../../../../shared/constants';
+import { SCHOLARSHIP_ERRORS, UserRole } from '../../../../../shared/constants';
 
 @Injectable()
 @CommandHandler(CloseScholarshipCommand)
@@ -32,6 +33,15 @@ export class CloseScholarshipCommandHandler extends BaseCommandHandler<
     if (!scholarship) {
       throw new NotFoundException(
         SCHOLARSHIP_ERRORS.NOT_FOUND(command.scholarshipId),
+      );
+    }
+
+    if (
+      command.userRole === UserRole.SPONSOR &&
+      scholarship.createdBy !== command.userId
+    ) {
+      throw new ForbiddenException(
+        'You can only close scholarships created by you',
       );
     }
 

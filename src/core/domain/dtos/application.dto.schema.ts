@@ -28,6 +28,7 @@ export const UpdateApplicationDtoSchema = z.object({
     .max(2000, MSG.COVER_LETTER.MAX_LENGTH)
     .optional()
     .nullable(),
+  documents: z.array(z.string().url()).optional(),
   additionalInfo: z.record(z.string(), z.unknown()).optional().nullable(),
   status: ApplicationStatusEnum.optional(),
 });

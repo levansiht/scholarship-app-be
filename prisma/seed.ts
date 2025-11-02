@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { PrismaClient } from '@prisma/client';
@@ -11,12 +8,8 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // Clean database (in development only)
   if (process.env.NODE_ENV === 'development') {
     console.log('🧹 Cleaning database...');
-    await prisma.applicationReview.deleteMany();
-    await prisma.applicationDocument.deleteMany();
-    await prisma.applicationTimeline.deleteMany();
     await prisma.application.deleteMany();
     await prisma.savedScholarship.deleteMany();
     await prisma.scholarshipDocument.deleteMany();
@@ -30,14 +23,8 @@ async function main() {
     await prisma.user.deleteMany();
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash('Password123!', 10);
 
-  // ===================================
-  // CREATE USERS
-  // ===================================
-
-  // Admin User
   const admin = await prisma.user.create({
     data: {
       email: 'admin@scholarship.com',
@@ -257,11 +244,15 @@ async function main() {
       amount: 100000000, // 100 million VND
       currency: 'VND',
       numberOfSlots: 10,
-      availableSlots: 10,
-      deadline: new Date('2024-12-31'),
+      availableSlots: 8, // 2 applications already submitted
+      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
+      startDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+      endDate: new Date(Date.now() + 455 * 24 * 60 * 60 * 1000), // ~15 months from now
       status: 'OPEN',
       featured: true,
       tags: ['Technology', 'Innovation', 'Full Scholarship'],
+      thumbnailUrl:
+        'https://images.unsplash.com/photo-1523240795612-9a054b0db644',
       publishedAt: new Date(),
       categories: {
         create: [
@@ -327,11 +318,15 @@ Students demonstrating leadership potential and academic excellence`,
       amount: 50000000, // 50 million VND
       currency: 'VND',
       numberOfSlots: 15,
-      availableSlots: 15,
-      deadline: new Date('2024-11-30'),
+      availableSlots: 14, // 1 application under review
+      deadline: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
+      startDate: new Date(Date.now() + 75 * 24 * 60 * 60 * 1000), // 75 days from now
+      endDate: new Date(Date.now() + 440 * 24 * 60 * 60 * 1000), // ~14.5 months from now
       status: 'OPEN',
       featured: true,
       tags: ['Telecommunications', 'Leadership', 'Business'],
+      thumbnailUrl:
+        'https://images.unsplash.com/photo-1522202176988-66273c2fd55f',
       publishedAt: new Date(),
       categories: {
         create: [
@@ -376,22 +371,27 @@ Students demonstrating leadership potential and academic excellence`,
   const scholarship3 = await prisma.scholarship.create({
     data: {
       createdBy: sponsor1.id,
-      title: 'Women in Tech Scholarship',
-      slug: 'women-in-tech-scholarship',
+      title: 'Women in Tech Scholarship 2025',
+      slug: 'women-in-tech-scholarship-2025',
       description: `Supporting women pursuing careers in technology fields.
 
 **Benefits:**
 - 30 million VND
 - Mentorship program with female tech leaders
-- Access to exclusive tech workshops`,
+- Access to exclusive tech workshops
+- Networking with women in tech community`,
       amount: 30000000,
       currency: 'VND',
       numberOfSlots: 20,
       availableSlots: 20,
-      deadline: new Date('2024-10-31'),
+      deadline: new Date(Date.now() + 120 * 24 * 60 * 60 * 1000), // 120 days from now
+      startDate: new Date(Date.now() + 150 * 24 * 60 * 60 * 1000), // 150 days from now
+      endDate: new Date(Date.now() + 515 * 24 * 60 * 60 * 1000), // ~17 months from now
       status: 'OPEN',
-      featured: false,
-      tags: ['Women in Tech', 'Diversity', 'Technology'],
+      featured: true,
+      tags: ['Women in Tech', 'Diversity', 'Technology', 'Mentorship'],
+      thumbnailUrl:
+        'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2',
       publishedAt: new Date(),
       categories: {
         create: [{ name: 'Technology' }, { name: 'Diversity' }],
@@ -433,20 +433,6 @@ Students demonstrating leadership potential and academic excellence`,
       coverLetter:
         'I am passionate about technology and innovation. This scholarship would help me achieve my dreams...',
       submittedAt: new Date(),
-      timeline: {
-        create: [
-          {
-            status: 'DRAFT',
-            description: 'Application created',
-            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-          },
-          {
-            status: 'SUBMITTED',
-            description: 'Application submitted',
-            createdAt: new Date(),
-          },
-        ],
-      },
     },
   });
 
@@ -458,20 +444,6 @@ Students demonstrating leadership potential and academic excellence`,
       coverLetter:
         'As a business student with leadership experience, I believe I am a strong candidate...',
       submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-      timeline: {
-        create: [
-          {
-            status: 'SUBMITTED',
-            description: 'Application submitted',
-            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          },
-          {
-            status: 'UNDER_REVIEW',
-            description: 'Application is being reviewed',
-            createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-          },
-        ],
-      },
     },
   });
 

@@ -16,25 +16,11 @@ export class PrismaService
     console.log('❌ Database disconnected');
   }
 
-  /**
-   * Clean database - Use only for testing
-   *
-   * Deletes all data from all tables in correct order to respect foreign keys.
-   * Uses explicit Prisma model methods for clarity and maintainability.
-   *
-   * @throws Error if NODE_ENV is production
-   *
-   * Note: Prisma model properties are typed as `any` in PrismaClient base class.
-   * We must disable eslint for these unavoidable `any` types from Prisma's design.
-   */
   async cleanDatabase(): Promise<void> {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('Cannot clean database in production environment!');
     }
 
-    await this.applicationReview.deleteMany({});
-    await this.applicationDocument.deleteMany({});
-    await this.applicationTimeline.deleteMany({});
     await this.application.deleteMany({});
 
     await this.savedScholarship.deleteMany({});

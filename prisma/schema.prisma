@@ -63,14 +63,12 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  profile              Profile?
-  studentProfile       StudentProfile?
-  sponsorProfile       SponsorProfile?
-  scholarships         Scholarship[]         @relation("ScholarshipCreator")
-  applications         Application[]
-  reviews              ApplicationReview[]
-  savedScholarships    SavedScholarship[]
-  applicationDocuments ApplicationDocument[]
+  profile           Profile?
+  studentProfile    StudentProfile?
+  sponsorProfile    SponsorProfile?
+  scholarships      Scholarship[]    @relation("ScholarshipCreator")
+  applications      Application[]
+  savedScholarships SavedScholarship[]
 
   @@index([email])
   @@index([role])
@@ -259,6 +257,7 @@ model Application {
   applicantId    String
   status         ApplicationStatus @default(DRAFT)
   coverLetter    String?           @db.Text
+  documents      String[]          // Array of document URLs from Supabase Storage
   additionalInfo Json?
 
   submittedAt DateTime?
@@ -268,72 +267,13 @@ model Application {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  scholarship Scholarship           @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
-  applicant   User                  @relation(fields: [applicantId], references: [id], onDelete: Cascade)
-  documents   ApplicationDocument[]
-  reviews     ApplicationReview[]
-  timeline    ApplicationTimeline[]
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id], onDelete: Cascade)
+  applicant   User        @relation(fields: [applicantId], references: [id], onDelete: Cascade)
 
   @@unique([scholarshipId, applicantId])
   @@index([applicantId])
   @@index([status])
   @@map("applications")
-}
-
-model ApplicationDocument {
-  id            String       @id @default(uuid())
-  applicationId String
-  uploadedBy    String // User ID
-  documentType  DocumentType
-  title         String
-  description   String?
-  fileUrl       String
-  fileName      String
-  fileSize      Int // in bytes
-  mimeType      String
-  isVerified    Boolean      @default(false)
-  verifiedAt    DateTime?
-  uploadedAt    DateTime     @default(now())
-
-  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  uploader    User        @relation(fields: [uploadedBy], references: [id])
-
-  @@index([applicationId])
-  @@index([uploadedBy])
-  @@index([documentType])
-  @@map("application_documents")
-}
-
-model ApplicationReview {
-  id            String   @id @default(uuid())
-  applicationId String
-  reviewerId    String // Admin or Advisor User ID
-  rating        Int?
-  comments      String   @db.Text
-  decision      String? // APPROVED, REJECTED, NEED_MORE_INFO
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  reviewer    User        @relation(fields: [reviewerId], references: [id])
-
-  @@index([applicationId])
-  @@index([reviewerId])
-  @@map("application_reviews")
-}
-
-model ApplicationTimeline {
-  id            String   @id @default(uuid())
-  applicationId String
-  status        String
-  description   String?
-  createdBy     String?
-  createdAt     DateTime @default(now())
-
-  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-
-  @@index([applicationId])
-  @@map("application_timeline")
 }
 
 // FEATURES

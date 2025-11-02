@@ -69,11 +69,6 @@ export class ApplicationRepository implements IRepositoryApplication {
     const prismaApplication = await this.prisma.application.findUnique({
       where: { id },
       include: {
-        documents: true,
-        reviews: true,
-        timeline: {
-          orderBy: { createdAt: 'asc' },
-        },
         applicant: {
           include: {
             profile: true,

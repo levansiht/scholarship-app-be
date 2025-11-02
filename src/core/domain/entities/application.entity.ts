@@ -6,6 +6,7 @@ export interface ApplicationProps {
   applicantId: string;
   status: ApplicationStatus;
   coverLetter: string | null;
+  documents: string[];
   additionalInfo: Record<string, unknown> | null;
   submittedAt: Date | null;
   reviewedAt: Date | null;
@@ -20,6 +21,7 @@ export class Application {
   private _applicantId: string;
   private _status: ApplicationStatus;
   private _coverLetter: string | null;
+  private _documents: string[];
   private _additionalInfo: Record<string, unknown> | null;
   private _submittedAt: Date | null;
   private _reviewedAt: Date | null;
@@ -33,6 +35,7 @@ export class Application {
     this._applicantId = props.applicantId;
     this._status = props.status;
     this._coverLetter = props.coverLetter;
+    this._documents = props.documents;
     this._additionalInfo = props.additionalInfo;
     this._submittedAt = props.submittedAt;
     this._reviewedAt = props.reviewedAt;
@@ -63,6 +66,10 @@ export class Application {
 
   get coverLetter(): string | null {
     return this._coverLetter;
+  }
+
+  get documents(): string[] {
+    return this._documents;
   }
 
   get additionalInfo(): Record<string, unknown> | null {

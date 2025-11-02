@@ -3,12 +3,15 @@ import {
   Inject,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
 import { UpdateScholarshipCommand } from './update-scholarship.command';
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories';
 import type { IRepositoryScholarship } from '../../../../domain/interfaces/repositories';
+import type { IRepositoryApplication } from '../../../../domain/interfaces/repositories/application.repository.interface';
+import { APPLICATION_REPOSITORY } from '../../../../domain/interfaces/repositories/application.repository.interface';
 import { Scholarship } from '../../../../domain/entities';
 import { UpdateScholarshipDtoSchema } from '../../../../domain/dtos/scholarship.dto.schema';
 import { SCHOLARSHIP_ERRORS, UserRole } from '../../../../../shared/constants';
@@ -22,6 +25,8 @@ export class UpdateScholarshipCommandHandler extends BaseCommandHandler<
   constructor(
     @Inject(SCHOLARSHIP_REPOSITORY)
     private readonly scholarshipRepository: IRepositoryScholarship,
+    @Inject(APPLICATION_REPOSITORY)
+    private readonly applicationRepository: IRepositoryApplication,
   ) {
     super();
   }
@@ -44,6 +49,20 @@ export class UpdateScholarshipCommandHandler extends BaseCommandHandler<
     ) {
       throw new ForbiddenException(
         'You can only update scholarships created by you',
+      );
+    }
+
+    const applicationCount =
+      await this.applicationRepository.countByScholarship(
+        command.scholarshipId,
+      );
+
+    if (
+      validatedDto.numberOfSlots !== undefined &&
+      validatedDto.numberOfSlots < applicationCount
+    ) {
+      throw new BadRequestException(
+        `Cannot reduce slots to ${validatedDto.numberOfSlots} because there are already ${applicationCount} applications`,
       );
     }
 

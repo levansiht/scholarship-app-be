@@ -4,50 +4,54 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-<p align="center">A robust scholarship management platform built with NestJS, Clean Architecture, and SOLID principles.</p>
+<p align="center">A production-ready scholarship management platform built with NestJS, CQRS, Clean Architecture, and SOLID principles.</p>
 
 ---
 
 ## ✨ Features
 
-- 👤 **User Management** - Students, Sponsors, Admins with role-specific profiles
-- 🎓 **Scholarship CRUD** - Complete lifecycle management
-- 📄 **Application System** - Submit, review, and track applications
-- 🔔 **Notifications** - Real-time updates
-- 💬 **Messaging** - Direct communication
-- 🔍 **Advanced Search** - Filter and discover scholarships
-- 🔐 **Security** - JWT authentication, password hashing, email verification
-- 📁 **File Management** - Document uploads with validation
+- 👤 **User Management** - RBAC with STUDENT, SPONSOR, ADMIN roles
+- 🎓 **Scholarship CRUD** - Complete lifecycle with ownership validation
+- 📄 **Application System** - Submit, review, approve/reject with business rules
+- � **Security** - JWT authentication, bcrypt password hashing, role guards
+- � **CQRS Pattern** - Separated read/write operations with command handlers
+- ✅ **Enhanced Validation** - Zod schemas with cross-field validation
+- �️ **PostgreSQL + Prisma** - Type-safe database access with migrations
 
 ## 🏗️ Architecture
 
-Built with **Clean Architecture** principles:
+Built with **Clean Architecture + CQRS Pattern**:
 
 ```
 src/
-├── core/                    # 🎯 Domain Layer
+├── core/                           # 🎯 Domain Layer
 │   ├── domain/
-│   │   ├── entities/       # Business models
-│   │   └── interfaces/     # Repository contracts
+│   │   ├── entities/              # Domain models
+│   │   ├── dtos/                  # Zod validation schemas
+│   │   └── interfaces/            # Repository contracts
 │   └── application/
-│       └── use-cases/      # Business logic
+│       ├── commands/              # Write operations (CQRS)
+│       │   ├── user/
+│       │   ├── scholarship/
+│       │   └── application/
+│       └── queries/               # Read operations (CQRS)
 │
-├── infras/                 # 🔧 Infrastructure Layer
-│   ├── database/          # Prisma + PostgreSQL
-│   └── repositories/      # Data access implementations
+├── infras/                        # 🔧 Infrastructure Layer
+│   ├── database/                  # Prisma ORM
+│   ├── repositories/              # Data access
+│   └── auth/                      # JWT strategy & guards
 │
-├── modules/               # 🌐 Presentation Layer
-│   ├── auth/             # Authentication
-│   ├── users/            # User management
-│   └── scholarships/     # Scholarship features
+├── presentation/                  # 🌐 Presentation Layer
+│   └── http/
+│       ├── controllers/           # REST endpoints
+│       ├── dtos/                  # API request/response
+│       └── modules/               # NestJS modules
 │
-└── common/               # 🛠️ Shared utilities
-    ├── decorators/
-    ├── exceptions/
-    └── interceptors/
+└── shared/                        # 🛠️ Shared utilities
+    └── constants/                 # Enums, messages, validation
 ```
 
-**Database:** 21 tables covering users, scholarships, applications, communication, and audit logging.
+**Database:** 3 core tables (User, Scholarship, Application) with optimized indexes.
 
 ## 🚀 Quick Start
 
@@ -124,11 +128,20 @@ make build && make start
 
 ### 🔐 Demo Login
 
-| Role       | Email                 | Password     |
-| ---------- | --------------------- | ------------ |
-| 👨‍💼 Admin   | admin@scholarship.com | Password123! |
-| 🏢 Sponsor | vingroup@sponsor.com  | Password123! |
-| 🎓 Student | student1@gmail.com    | Password123! |
+| Role        | Email                 | Password     |
+| ----------- | --------------------- | ------------ |
+| 👨‍💼 Admin    | admin@scholarship.com | Password123! |
+| 🏢 Sponsor  | vingroup@sponsor.com  | Password123! |
+| � Sponsor   | viettel@sponsor.com   | Password123! |
+| �🎓 Student | student1@gmail.com    | Password123! |
+| 🎓 Student  | student2@gmail.com    | Password123! |
+| 🎓 Student  | student3@gmail.com    | Password123! |
+
+### 📖 API Documentation
+
+- **Swagger UI:** http://localhost:3000/api/docs (Interactive API testing)
+- **API Docs:** `docs/API_DOCUMENTATION.md` (Complete reference for frontend)
+- **Database Docs:** `docs/DATABASE_DOCUMENTATION.md` (Schema, relationships, queries)
 
 ---
 
@@ -187,10 +200,10 @@ npm run format             # Format code
 
 ## 📚 Documentation
 
-- 📖 [Getting Started Guide](./docs/GETTING_STARTED.md) - Detailed setup
-- 🗄️ [Database Schema](./docs/DATABASE_SCHEMA.md) - Complete schema
-- 📊 [Database Summary](./docs/DATABASE_SUMMARY.md) - Quick overview
-- ✅ [Phase 2 Complete](./docs/PHASE_2_COMPLETE.md) - Infrastructure layer
+- 📖 **API Documentation** - `docs/API_DOCUMENTATION.md` - All endpoints for frontend integration
+- 🗄️ **Database Documentation** - `docs/DATABASE_DOCUMENTATION.md` - Schema, relationships, migrations
+- 🎯 **Swagger UI** - http://localhost:3000/api/docs - Interactive API testing
+- ✅ **Phase 10 Complete** - `docs/PHASE_10_COMPLETE.md` - Latest improvements
 
 ---
 
@@ -214,13 +227,14 @@ npm run test:e2e
 
 ## 🛠️ Tech Stack
 
-- **Framework:** NestJS 11
+- **Framework:** NestJS 10+
 - **Language:** TypeScript (strict mode)
-- **Database:** PostgreSQL 16
-- **ORM:** Prisma 6
-- **Cache:** Redis
+- **Architecture:** Clean Architecture + CQRS Pattern
+- **Database:** PostgreSQL 15+
+- **ORM:** Prisma 5+
 - **Authentication:** JWT + Passport
-- **Validation:** class-validator
+- **Validation:** Zod schemas
+- **Password:** bcrypt (10 salt rounds)
 - **Testing:** Jest
 - **Containerization:** Docker & Docker Compose
 
@@ -228,16 +242,24 @@ npm run test:e2e
 
 ## 📂 Project Status
 
-### ✅ Completed
+### ✅ Completed Phases
 
-- ✅ Phase 1: Database Foundation (21 tables, migrations, seed data)
-- ✅ Phase 2: Infrastructure Layer (Repository pattern, DI, tests)
+- ✅ **Phase 1-7**: Database, Infrastructure, Domain, Application, Presentation Layers
+- ✅ **Phase 8**: JWT Authentication (login, register, password hashing)
+- ✅ **Phase 9**: RBAC with SPONSOR role + ownership validation
+- ✅ **Phase 10**: Enhanced validation, seed data, professional documentation
 
-### 🚧 In Progress
+### 🎯 Next Phase
 
-- 🔄 Phase 3: Domain Layer (Entities, Value Objects, Events)
-- 🔄 Phase 4: Application Layer (Use Cases, DTOs)
-- 🔄 Phase 5: Presentation Layer (Controllers, Guards, Pipes)
+- � **Phase 11**: Deployment (Heroku/Railway/Render), CI/CD, monitoring, security hardening
+
+### 📊 Current Status
+
+- **Total Endpoints:** 21 (Auth: 2, Users: 6, Scholarships: 7, Applications: 6)
+- **Database Tables:** 3 (User, Scholarship, Application)
+- **Seed Data:** 6 users, 3 scholarships, 3 applications
+- **Build Status:** ✅ Passing (0 TypeScript errors)
+- **Documentation:** ✅ Complete (API + Database docs for frontend team)
 
 ---
 

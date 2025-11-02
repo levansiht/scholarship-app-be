@@ -51,6 +51,12 @@ export class SubmitApplicationCommandHandler extends BaseCommandHandler<
       throw new BadRequestException(APPLICATION_ERRORS.SCHOLARSHIP_CLOSED);
     }
 
+    if (scholarship.deadline && new Date() > scholarship.deadline) {
+      throw new BadRequestException(
+        'Application deadline has passed for this scholarship',
+      );
+    }
+
     const hasApplied = await this.applicationRepository.hasApplied(
       validatedData.applicantId,
       validatedData.scholarshipId,
@@ -76,6 +82,7 @@ export class SubmitApplicationCommandHandler extends BaseCommandHandler<
       applicantId: validatedData.applicantId,
       status: ApplicationStatus.DRAFT,
       coverLetter: validatedData.coverLetter ?? null,
+      documents: [],
       additionalInfo: validatedData.additionalInfo ?? null,
       submittedAt: null,
       reviewedAt: null,

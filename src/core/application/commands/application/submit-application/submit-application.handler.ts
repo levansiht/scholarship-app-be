@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
 import { SubmitApplicationCommand } from './submit-application.command';
 import { Application } from '../../../../domain/entities/application.entity';
@@ -20,6 +21,7 @@ import { CreateApplicationDtoSchema } from '../../../../domain/dtos/application.
 import { ApplicationStatus } from '../../../../../shared/constants';
 
 @Injectable()
+@CommandHandler(SubmitApplicationCommand)
 export class SubmitApplicationCommandHandler extends BaseCommandHandler<
   SubmitApplicationCommand,
   Application

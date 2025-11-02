@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../common/base.command-handler';
 import { SuspendUserCommand } from './suspend-user.command';
 import { USER_REPOSITORY } from '../../../domain/interfaces/repositories';
@@ -8,6 +9,7 @@ import { validateSuspendUserCommandDto } from './dtos';
 import { USER_ERRORS, UserStatus } from '../../../../shared/constants';
 
 @Injectable()
+@CommandHandler(SuspendUserCommand)
 export class SuspendUserCommandHandler extends BaseCommandHandler<
   SuspendUserCommand,
   User

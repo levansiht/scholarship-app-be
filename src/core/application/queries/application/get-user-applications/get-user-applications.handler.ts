@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { GetUserApplicationsQuery } from './get-user-applications.query';
 import { Application } from '../../../../domain/entities/application.entity';
@@ -7,6 +8,7 @@ import { APPLICATION_REPOSITORY } from '../../../../domain/interfaces/repositori
 import { UuidSchema } from '../../../../../shared/constants/validation';
 
 @Injectable()
+@QueryHandler(GetUserApplicationsQuery)
 export class GetUserApplicationsQueryHandler extends BaseQueryHandler<
   GetUserApplicationsQuery,
   Application[]

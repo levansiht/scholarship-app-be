@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { ListUsersQuery } from './list-users.query';
 import { USER_REPOSITORY } from '../../../../domain/interfaces/repositories';
@@ -14,6 +15,7 @@ export interface ListUsersResult {
 }
 
 @Injectable()
+@QueryHandler(ListUsersQuery)
 export class ListUsersQueryHandler extends BaseQueryHandler<
   ListUsersQuery,
   ListUsersResult

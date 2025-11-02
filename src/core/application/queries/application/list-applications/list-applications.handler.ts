@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { ListApplicationsQuery } from './list-applications.query';
 import { Application } from '../../../../domain/entities/application.entity';
@@ -7,6 +8,7 @@ import { APPLICATION_REPOSITORY } from '../../../../domain/interfaces/repositori
 import type { PaginatedResult } from '../../../../domain/interfaces/repositories/base.repository.interface';
 
 @Injectable()
+@QueryHandler(ListApplicationsQuery)
 export class ListApplicationsQueryHandler extends BaseQueryHandler<
   ListApplicationsQuery,
   PaginatedResult<Application>

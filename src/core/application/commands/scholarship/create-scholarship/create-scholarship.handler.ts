@@ -1,4 +1,5 @@
 import { Injectable, Inject, ConflictException } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
 import { CreateScholarshipCommand } from './create-scholarship.command';
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories';
@@ -8,6 +9,7 @@ import { CreateScholarshipDtoSchema } from '../../../../domain/dtos/scholarship.
 import { SCHOLARSHIP_ERRORS } from '../../../../../shared/constants';
 
 @Injectable()
+@CommandHandler(CreateScholarshipCommand)
 export class CreateScholarshipCommandHandler extends BaseCommandHandler<
   CreateScholarshipCommand,
   Scholarship

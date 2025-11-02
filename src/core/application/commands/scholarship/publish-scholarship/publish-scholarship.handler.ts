@@ -4,6 +4,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../../common/base.command-handler';
 import { PublishScholarshipCommand } from './publish-scholarship.command';
 import { SCHOLARSHIP_REPOSITORY } from '../../../../domain/interfaces/repositories';
@@ -12,6 +13,7 @@ import { Scholarship, ScholarshipStatus } from '../../../../domain/entities';
 import { SCHOLARSHIP_ERRORS } from '../../../../../shared/constants';
 
 @Injectable()
+@CommandHandler(PublishScholarshipCommand)
 export class PublishScholarshipCommandHandler extends BaseCommandHandler<
   PublishScholarshipCommand,
   Scholarship

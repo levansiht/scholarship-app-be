@@ -8,6 +8,11 @@ export abstract class BaseQueryHandler<TQuery extends IQuery, TResult>
 {
   abstract query(query: TQuery): Promise<TResult>;
 
+  // NestJS CQRS requires execute() method
+  async execute(query: TQuery): Promise<TResult> {
+    return this.query(query);
+  }
+
   protected validate(queryObj: TQuery): void {
     if (!queryObj) {
       throw new Error('Query cannot be null or undefined');

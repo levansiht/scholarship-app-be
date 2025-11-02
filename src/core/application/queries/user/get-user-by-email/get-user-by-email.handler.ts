@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { QueryHandler } from '@nestjs/cqrs';
 import { BaseQueryHandler } from '../../../common/base.query-handler';
 import { GetUserByEmailQuery } from './get-user-by-email.query';
 import { USER_REPOSITORY } from '../../../../domain/interfaces/repositories';
@@ -8,6 +9,7 @@ import { EmailSchema } from '../../../../domain/schemas';
 import { USER_ERRORS } from '../../../../../shared/constants';
 
 @Injectable()
+@QueryHandler(GetUserByEmailQuery)
 export class GetUserByEmailQueryHandler extends BaseQueryHandler<
   GetUserByEmailQuery,
   User

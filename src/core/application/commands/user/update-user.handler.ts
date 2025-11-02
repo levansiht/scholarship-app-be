@@ -1,4 +1,5 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { CommandHandler } from '@nestjs/cqrs';
 import { BaseCommandHandler } from '../../common/base.command-handler';
 import { UpdateUserCommand } from './update-user.command';
 import { USER_REPOSITORY } from '../../../domain/interfaces/repositories';
@@ -9,6 +10,7 @@ import { USER_ERRORS, UserStatus } from '../../../../shared/constants';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
+@CommandHandler(UpdateUserCommand)
 export class UpdateUserCommandHandler extends BaseCommandHandler<
   UpdateUserCommand,
   User

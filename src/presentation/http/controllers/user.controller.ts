@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   Patch,
-  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -18,7 +17,6 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../infras/auth/jwt-auth.guard';
 import {
-  CreateUserCommand,
   UpdateUserCommand,
   ChangePasswordCommand,
   SuspendUserCommand,
@@ -30,12 +28,10 @@ import {
 } from '../../../core/application/queries/user';
 import type { User } from '../../../core/domain/entities';
 import {
-  CreateUserHttpDto,
   UpdateUserHttpDto,
   ChangePasswordHttpDto,
   SuspendUserHttpDto,
 } from '../dtos';
-import { UserRole } from '../../../shared/constants';
 
 @ApiTags('Users')
 @Controller('users')
@@ -46,19 +42,6 @@ export class UserController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-
-  @Post()
-  @ApiOperation({ summary: 'Create a new user (role: STUDENT by default)' })
-  @ApiBody({ type: CreateUserHttpDto })
-  @ApiResponse({ status: 201, description: 'User created' })
-  async createUser(@Body() dto: CreateUserHttpDto): Promise<User> {
-    const command = new CreateUserCommand({
-      email: dto.email,
-      password: dto.password,
-      role: UserRole.STUDENT, // Always STUDENT on registration
-    });
-    return await this.commandBus.execute(command);
-  }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })

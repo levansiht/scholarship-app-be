@@ -77,6 +77,28 @@ export class ScholarshipController {
     return await this.commandBus.execute(command);
   }
 
+  @Get('search')
+  @ApiOperation({ summary: 'Search scholarships with filters' })
+  @ApiQuery({ name: 'keyword', required: false })
+  @ApiQuery({ name: 'minAmount', required: false })
+  @ApiQuery({ name: 'maxAmount', required: false })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['DRAFT', 'PUBLISHED', 'CLOSED'],
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Search results',
+  })
+  async searchScholarships(
+    @Query() dto: SearchScholarshipsHttpDto,
+  ): Promise<Scholarship[]> {
+    const keyword = dto.keyword || '';
+    const query = new SearchScholarshipsQuery(keyword);
+    return await this.queryBus.execute(query);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get scholarship by ID' })
   @ApiParam({ name: 'id', description: 'Scholarship UUID' })
@@ -106,28 +128,6 @@ export class ScholarshipController {
       page: Number(page),
       limit: Number(limit),
     });
-    return await this.queryBus.execute(query);
-  }
-
-  @Get('search')
-  @ApiOperation({ summary: 'Search scholarships with filters' })
-  @ApiQuery({ name: 'keyword', required: false })
-  @ApiQuery({ name: 'minAmount', required: false })
-  @ApiQuery({ name: 'maxAmount', required: false })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    enum: ['DRAFT', 'PUBLISHED', 'CLOSED'],
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Search results',
-  })
-  async searchScholarships(
-    @Query() dto: SearchScholarshipsHttpDto,
-  ): Promise<Scholarship[]> {
-    const keyword = dto.keyword || '';
-    const query = new SearchScholarshipsQuery(keyword);
     return await this.queryBus.execute(query);
   }
 

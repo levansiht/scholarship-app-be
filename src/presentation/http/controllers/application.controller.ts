@@ -27,7 +27,6 @@ import { RejectApplicationCommand } from '../../../core/application/commands/app
 import { WithdrawApplicationCommand } from '../../../core/application/commands/application/withdraw-application/withdraw-application.command';
 import { GetApplicationByIdQuery } from '../../../core/application/queries/application/get-application-by-id/get-application-by-id.query';
 import { ListApplicationsQuery } from '../../../core/application/queries/application/list-applications/list-applications.query';
-import { GetUserApplicationsQuery } from '../../../core/application/queries/application/get-user-applications/get-user-applications.query';
 import { SubmitApplicationHttpDto } from '../dtos/submit-application-http.dto';
 import { ApproveApplicationHttpDto } from '../dtos/approve-application-http.dto';
 import { RejectApplicationHttpDto } from '../dtos/reject-application-http.dto';
@@ -118,20 +117,6 @@ export class ApplicationController {
       statusEnum,
       scholarshipId,
     );
-    return await this.queryBus.execute(query);
-  }
-
-  @Get('user/:userId')
-  @ApiOperation({ summary: "Get a specific user's applications" })
-  @ApiParam({ name: 'userId', description: 'User UUID' })
-  @ApiResponse({
-    status: 200,
-    description: "User's applications",
-  })
-  async getUserApplications(
-    @Param('userId') userId: string,
-  ): Promise<Application[]> {
-    const query = new GetUserApplicationsQuery(userId);
     return await this.queryBus.execute(query);
   }
 

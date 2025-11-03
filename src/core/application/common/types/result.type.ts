@@ -70,7 +70,7 @@ export class Result<T> {
 
   public map<U>(fn: (value: T) => U): Result<U> {
     if (this.isFailure()) {
-      return Result.fail<U>(this.error!, this.errors);
+      return Result.fail<U>(this.error ?? 'Unknown error', this.errors);
     }
 
     try {

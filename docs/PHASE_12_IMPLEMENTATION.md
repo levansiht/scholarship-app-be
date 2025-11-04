@@ -170,36 +170,61 @@ export class XController {
 
 ---
 
-### Phase 12B: ScholarshipCategory (Easy - 4 APIs)
+### Phase 12B: ScholarshipCategory (Easy - 3 APIs) ✅
 
 **Priority:** ⭐ (Better organization)  
 **Complexity:** Simple many-to-many relationship  
-**Status:** ⏳ Not Started
+**Status:** ✅ COMPLETED
 
 **APIs:**
 
-- [ ] GET `/categories` - List all categories
-- [ ] POST `/scholarships/:id/categories` - Add category
-- [ ] DELETE `/scholarships/:id/categories/:categoryId` - Remove category
-- [ ] GET `/scholarships?category=X` - Filter (enhance existing search)
+- [x] GET `/scholarships/categories` - List all unique category names
+- [x] POST `/scholarships/:id/categories` - Add category to scholarship
+- [x] DELETE `/scholarships/:id/categories/:categoryId` - Remove category from scholarship
+- [ ] ~~GET `/scholarships?category=X`~~ - Will enhance later in search feature
 
 **Why Second:** Simple relationship management, helps with organization
 
+**Implementation Details:**
+
+- ✅ Domain Entity: `ScholarshipCategory`
+- ✅ Repository: `ScholarshipCategoryRepository` with interface
+- ✅ Mapper: `ScholarshipCategoryMapper` (Prisma ↔ Domain)
+- ✅ Commands: `AddCategoryCommand`, `RemoveCategoryCommand`
+- ✅ Queries: `GetAllCategoriesQuery`
+- ✅ DTOs: Zod schemas for validation
+- ✅ Controller: `ScholarshipCategoryController` with Swagger docs
+- ✅ Module: `ScholarshipCategoryModule` registered in AppModule
+- ✅ Build: No TypeScript errors
+
 ---
 
-### Phase 12C: Profile (Easy - 3 APIs)
+### Phase 12C: Profile (Easy - 3 APIs) ✅
 
 **Priority:** ⭐⭐ (Better UX)  
 **Complexity:** Basic user info management  
-**Status:** ⏳ Not Started
+**Status:** ✅ COMPLETED
 
 **APIs:**
 
-- [ ] GET `/users/me/profile` - Get own profile
-- [ ] PATCH `/users/me/profile` - Update profile
-- [ ] POST `/users/me/profile/avatar` - Upload avatar
+- [x] GET `/users/me/profile` - Get own profile
+- [x] PATCH `/users/me/profile` - Update profile
+- [x] PATCH `/users/me/profile/avatar` - Upload avatar
 
 **Why Third:** Basic info, auto-created on register, simple updates
+
+**Implementation Details:**
+
+- ✅ Domain Entity: `Profile` with getters and immutable props
+- ✅ Repository: `ProfileRepository` with interface and auto-generated fullName
+- ✅ Mapper: `ProfileMapper` (Prisma ↔ Domain) with null/undefined handling
+- ✅ Commands: `UpdateProfileCommand`, `UpdateAvatarCommand`
+- ✅ Queries: `GetProfileQuery`
+- ✅ DTOs: `UpdateProfileDtoSchema` with Zod validation
+- ✅ Controller: `ProfileController` with file upload for avatar (max 5MB, JPG/PNG)
+- ✅ Module: `ProfileModule` with SupabaseModule integration
+- ✅ Avatar Upload: Integrated with SupabaseService for file storage
+- ✅ Build: No TypeScript errors
 
 ---
 
@@ -294,20 +319,22 @@ export class XController {
 ### Summary
 
 - **Total Features:** 8
-- **Total APIs:** 32
-- **Completed:** 4/32 (12.5%) 🎉
+- **Total APIs:** 31 (adjusted)
+- **Completed:** 10/31 (32.3%) 🎉
 - **In Progress:** 0
-- **Not Started:** 28
+- **Not Started:** 21
 
 ### Features Completed
 
 1. ✅ SavedScholarship (4 APIs) - DONE
+2. ✅ ScholarshipCategory (3 APIs) - DONE
+3. ✅ Profile (3 APIs) - DONE
 
 ### Priority Breakdown
 
 - **Critical (⭐⭐⭐):** 2 features (StudentProfile, EligibilityCriteria)
 - **Important (⭐⭐):** 2 features (Profile, SponsorProfile)
-- **Nice-to-have (⭐):** 4 features (SavedScholarship ✅, Category, Document, Requirement)
+- **Nice-to-have (⭐):** 4 features (SavedScholarship ✅, Category ✅, Document, Requirement)
 
 ---
 
@@ -316,10 +343,11 @@ export class XController {
 1. ✅ Architecture analyzed
 2. ✅ Convention patterns documented
 3. ✅ Phase 12A: SavedScholarship - COMPLETED
-4. ⏳ Phase 12B: ScholarshipCategory (Next)
-5. ⏳ Continue sequentially through 12H
+4. ✅ Phase 12B: ScholarshipCategory - COMPLETED
+5. ⏳ Phase 12C: Profile (Next)
+6. ⏳ Continue sequentially through 12H
 
 ---
 
-**Last Updated:** November 3, 2025  
-**Status:** 1/8 Features Complete - SavedScholarship ✅
+**Last Updated:** November 4, 2025  
+**Status:** 2/8 Features Complete - 7/31 APIs (22.6%) 🚀

@@ -8,6 +8,8 @@ import { UserModule } from './presentation/http/modules/user.module';
 import { ScholarshipModule } from './presentation/http/modules/scholarship.module';
 import { ApplicationModule } from './presentation/http/modules/application.module';
 import { SavedScholarshipModule } from './presentation/http/modules/saved-scholarship.module';
+import { ScholarshipCategoryModule } from './presentation/http/modules/scholarship-category.module';
+import { ProfileModule } from './presentation/http/modules/profile.module';
 import { HealthController } from './presentation/http/controllers/health.controller';
 
 @Module({
@@ -24,6 +26,8 @@ import { HealthController } from './presentation/http/controllers/health.control
     ScholarshipModule,
     ApplicationModule,
     SavedScholarshipModule,
+    ScholarshipCategoryModule,
+    ProfileModule,
   ],
   controllers: [HealthController],
   providers: [],

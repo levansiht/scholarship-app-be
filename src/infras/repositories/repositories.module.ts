@@ -6,6 +6,7 @@ import { ApplicationRepository } from './application.repository';
 import { SavedScholarshipRepository } from './saved-scholarship.repository';
 import { ScholarshipCategoryRepository } from './scholarship-category.repository';
 import { ProfileRepository } from './profile.repository';
+import { ScholarshipDocumentRepository } from './scholarship-document.repository';
 import {
   USER_REPOSITORY,
   SCHOLARSHIP_REPOSITORY,
@@ -13,6 +14,7 @@ import {
   SAVED_SCHOLARSHIP_REPOSITORY,
   SCHOLARSHIP_CATEGORY_REPOSITORY,
   PROFILE_REPOSITORY,
+  SCHOLARSHIP_DOCUMENT_REPOSITORY,
 } from '../../core/domain/interfaces/repositories';
 
 @Module({
@@ -24,6 +26,7 @@ import {
     SavedScholarshipRepository,
     ScholarshipCategoryRepository,
     ProfileRepository,
+    ScholarshipDocumentRepository,
     {
       provide: USER_REPOSITORY,
       useClass: UserRepository,
@@ -48,6 +51,10 @@ import {
       provide: PROFILE_REPOSITORY,
       useClass: ProfileRepository,
     },
+    {
+      provide: SCHOLARSHIP_DOCUMENT_REPOSITORY,
+      useClass: ScholarshipDocumentRepository,
+    },
   ],
   exports: [
     UserRepository,
@@ -56,12 +63,14 @@ import {
     SavedScholarshipRepository,
     ScholarshipCategoryRepository,
     ProfileRepository,
+    ScholarshipDocumentRepository,
     USER_REPOSITORY,
     SCHOLARSHIP_REPOSITORY,
     APPLICATION_REPOSITORY,
     SAVED_SCHOLARSHIP_REPOSITORY,
     SCHOLARSHIP_CATEGORY_REPOSITORY,
     PROFILE_REPOSITORY,
+    SCHOLARSHIP_DOCUMENT_REPOSITORY,
   ],
 })
 export class RepositoriesModule {}

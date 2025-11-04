@@ -228,20 +228,37 @@ export class XController {
 
 ---
 
-### Phase 12D: ScholarshipDocument (Medium - 4 APIs)
+### Phase 12D: ScholarshipDocument (Medium - 4 APIs) ✅
 
 **Priority:** ⭐ (Materials download)  
 **Complexity:** File upload/download management  
-**Status:** ⏳ Not Started
+**Status:** ✅ COMPLETED
 
 **APIs:**
 
-- [ ] POST `/scholarships/:id/documents` - Upload document
-- [ ] GET `/scholarships/:id/documents` - List documents
-- [ ] DELETE `/scholarships/:id/documents/:docId` - Delete document
-- [ ] GET `/scholarships/:id/documents/:docId/download` - Download
+- [x] POST `/scholarships/:id/documents` - Upload document (Admin/Sponsor only)
+- [x] GET `/scholarships/:id/documents` - List documents
+- [x] GET `/scholarships/:id/documents/:docId` - Get document details
+- [x] GET `/scholarships/:id/documents/:docId/download` - Download document (redirects to file URL)
+- [x] DELETE `/scholarships/:id/documents/:docId` - Delete document (Admin/Sponsor only)
 
 **Why Fourth:** Similar to application document upload, reuse Supabase logic
+
+**Implementation Details:**
+
+- ✅ Domain Entity: `ScholarshipDocument` with file metadata (title, description, fileUrl, fileSize, mimeType, uploadedAt)
+- ✅ Repository: `ScholarshipDocumentRepository` with CRUD operations
+- ✅ Mapper: `ScholarshipDocumentMapper` (Prisma ↔ Domain)
+- ✅ Commands: `UploadDocumentCommand`, `DeleteDocumentCommand`
+- ✅ Queries: `GetDocumentsQuery`, `GetDocumentQuery`
+- ✅ DTOs: `UploadDocumentDtoSchema` with Zod validation
+- ✅ Controller: `ScholarshipDocumentController` with file upload (max 10MB, PDF/DOC/DOCX/JPG/PNG)
+- ✅ Module: `ScholarshipDocumentModule` with SupabaseModule integration
+- ✅ File Upload: Integrated with SupabaseService for document storage
+- ✅ File Validation: Type and size validation before upload
+- ✅ Download: Redirect to Supabase public URL
+- ✅ Authorization: Only Admin/Sponsor can upload/delete documents
+- ✅ Build: No TypeScript errors
 
 ---
 
@@ -320,15 +337,16 @@ export class XController {
 
 - **Total Features:** 8
 - **Total APIs:** 31 (adjusted)
-- **Completed:** 10/31 (32.3%) 🎉
+- **Completed:** 15/31 (48.4%) 🎉
 - **In Progress:** 0
-- **Not Started:** 21
+- **Not Started:** 16
 
 ### Features Completed
 
 1. ✅ SavedScholarship (4 APIs) - DONE
 2. ✅ ScholarshipCategory (3 APIs) - DONE
 3. ✅ Profile (3 APIs) - DONE
+4. ✅ ScholarshipDocument (5 APIs) - DONE
 
 ### Priority Breakdown
 

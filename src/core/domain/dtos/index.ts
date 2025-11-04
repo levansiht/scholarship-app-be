@@ -56,3 +56,9 @@ export {
   validateUpdateProfileDto,
   type UpdateProfileDtoType,
 } from './profile.dto.schema';
+
+export {
+  UploadDocumentDtoSchema,
+  validateUploadDocumentDto,
+  type UploadDocumentDtoType,
+} from './scholarship-document.dto.schema';

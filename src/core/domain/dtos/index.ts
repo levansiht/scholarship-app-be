@@ -50,3 +50,9 @@ export {
 export { RegisterDtoSchema, type RegisterDto } from './register.dto.schema';
 
 export { LoginDtoSchema, type LoginDto } from './login.dto.schema';
+
+export {
+  UpdateProfileDtoSchema,
+  validateUpdateProfileDto,
+  type UpdateProfileDtoType,
+} from './profile.dto.schema';

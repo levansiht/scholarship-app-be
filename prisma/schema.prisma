@@ -130,6 +130,7 @@ model SponsorProfile {
   description      String    @db.Text
   logo             String? // URL to logo
   taxId            String? // Tax ID or Business Registration Number
+  contactEmail     String // Contact email for the organization
   verified         Boolean   @default(false)
   verifiedAt       DateTime?
   createdAt        DateTime  @default(now())

@@ -7,6 +7,8 @@ import { SavedScholarshipRepository } from './saved-scholarship.repository';
 import { ScholarshipCategoryRepository } from './scholarship-category.repository';
 import { ProfileRepository } from './profile.repository';
 import { ScholarshipDocumentRepository } from './scholarship-document.repository';
+import { ScholarshipRequirementRepository } from './scholarship-requirement.repository';
+import { SponsorProfileRepository } from './sponsor-profile.repository';
 import {
   USER_REPOSITORY,
   SCHOLARSHIP_REPOSITORY,
@@ -15,6 +17,8 @@ import {
   SCHOLARSHIP_CATEGORY_REPOSITORY,
   PROFILE_REPOSITORY,
   SCHOLARSHIP_DOCUMENT_REPOSITORY,
+  SCHOLARSHIP_REQUIREMENT_REPOSITORY,
+  SPONSOR_PROFILE_REPOSITORY,
 } from '../../core/domain/interfaces/repositories';
 
 @Module({
@@ -27,6 +31,8 @@ import {
     ScholarshipCategoryRepository,
     ProfileRepository,
     ScholarshipDocumentRepository,
+    ScholarshipRequirementRepository,
+    SponsorProfileRepository,
     {
       provide: USER_REPOSITORY,
       useClass: UserRepository,
@@ -55,6 +61,14 @@ import {
       provide: SCHOLARSHIP_DOCUMENT_REPOSITORY,
       useClass: ScholarshipDocumentRepository,
     },
+    {
+      provide: SCHOLARSHIP_REQUIREMENT_REPOSITORY,
+      useClass: ScholarshipRequirementRepository,
+    },
+    {
+      provide: SPONSOR_PROFILE_REPOSITORY,
+      useClass: SponsorProfileRepository,
+    },
   ],
   exports: [
     UserRepository,
@@ -64,6 +78,8 @@ import {
     ScholarshipCategoryRepository,
     ProfileRepository,
     ScholarshipDocumentRepository,
+    ScholarshipRequirementRepository,
+    SponsorProfileRepository,
     USER_REPOSITORY,
     SCHOLARSHIP_REPOSITORY,
     APPLICATION_REPOSITORY,
@@ -71,6 +87,8 @@ import {
     SCHOLARSHIP_CATEGORY_REPOSITORY,
     PROFILE_REPOSITORY,
     SCHOLARSHIP_DOCUMENT_REPOSITORY,
+    SCHOLARSHIP_REQUIREMENT_REPOSITORY,
+    SPONSOR_PROFILE_REPOSITORY,
   ],
 })
 export class RepositoriesModule {}

@@ -70,6 +70,7 @@ async function main() {
           website: 'https://vingroup.net',
           description:
             'Leading Vietnamese conglomerate committed to education and innovation',
+          contactEmail: 'contact@vingroup.net',
           verified: true,
           verifiedAt: new Date(),
         },
@@ -100,6 +101,7 @@ async function main() {
           website: 'https://viettel.com.vn',
           description:
             'Largest telecommunications company in Vietnam supporting technology education',
+          contactEmail: 'contact@viettel.com.vn',
           verified: true,
           verifiedAt: new Date(),
         },

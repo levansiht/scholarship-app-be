@@ -9,6 +9,14 @@ export {
   ScholarshipDocument,
   type ScholarshipDocumentProps,
 } from './scholarship-document.entity';
+export {
+  ScholarshipRequirement,
+  type ScholarshipRequirementProps,
+} from './scholarship-requirement.entity';
+export {
+  SponsorProfile,
+  type SponsorProfileProps,
+} from './sponsor-profile.entity';
 
 // Re-export enums from shared constants for backward compatibility
 export {

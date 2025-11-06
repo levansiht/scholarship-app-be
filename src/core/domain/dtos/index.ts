@@ -62,3 +62,12 @@ export {
   validateUploadDocumentDto,
   type UploadDocumentDtoType,
 } from './scholarship-document.dto.schema';
+
+export {
+  AddRequirementDtoSchema,
+  UpdateRequirementDtoSchema,
+  validateAddRequirementDto,
+  validateUpdateRequirementDto,
+  type AddRequirementDtoType,
+  type UpdateRequirementDtoType,
+} from './scholarship-requirement.dto.schema';

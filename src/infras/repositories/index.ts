@@ -4,4 +4,6 @@ export * from './application.repository';
 export * from './saved-scholarship.repository';
 export * from './scholarship-category.repository';
 export * from './profile.repository';
+export * from './student-profile.repository';
+export * from './eligibility-criteria.repository';
 export * from './repositories.module';

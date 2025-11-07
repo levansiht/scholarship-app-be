@@ -17,6 +17,14 @@ export {
   SponsorProfile,
   type SponsorProfileProps,
 } from './sponsor-profile.entity';
+export {
+  StudentProfile,
+  type StudentProfileProps,
+} from './student-profile.entity';
+export {
+  EligibilityCriteria,
+  type EligibilityCriteriaProps,
+} from './eligibility-criteria.entity';
 
 // Re-export enums from shared constants for backward compatibility
 export {

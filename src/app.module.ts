@@ -13,6 +13,8 @@ import { ProfileModule } from './presentation/http/modules/profile.module';
 import { ScholarshipDocumentModule } from './presentation/http/modules/scholarship-document.module';
 import { ScholarshipRequirementModule } from './presentation/http/modules/scholarship-requirement.module';
 import { SponsorProfileModule } from './presentation/http/modules/sponsor-profile.module';
+import { StudentProfileModule } from './presentation/http/modules/student-profile.module';
+import { EligibilityCriteriaModule } from './presentation/http/modules/eligibility-criteria.module';
 import { HealthController } from './presentation/http/controllers/health.controller';
 
 @Module({
@@ -34,6 +36,8 @@ import { HealthController } from './presentation/http/controllers/health.control
     ScholarshipDocumentModule,
     ScholarshipRequirementModule,
     SponsorProfileModule,
+    StudentProfileModule,
+    EligibilityCriteriaModule,
   ],
   controllers: [HealthController],
   providers: [],

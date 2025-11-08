@@ -9,7 +9,6 @@
 - [5. Admin Flow](#5-admin-flow)
 - [6. Business Rules](#6-business-rules)
 
----
 
 ## 1. System Overview
 
@@ -110,7 +109,6 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 - Hỗ trợ phân trang
 - Xem được: title, amount, deadline, requirements, GPA requirement
 
----
 
 ### 3.4. Tìm kiếm học bổng
 

@@ -50,3 +50,24 @@ export {
 export { RegisterDtoSchema, type RegisterDto } from './register.dto.schema';
 
 export { LoginDtoSchema, type LoginDto } from './login.dto.schema';
+
+export {
+  UpdateProfileDtoSchema,
+  validateUpdateProfileDto,
+  type UpdateProfileDtoType,
+} from './profile.dto.schema';
+
+export {
+  UploadDocumentDtoSchema,
+  validateUploadDocumentDto,
+  type UploadDocumentDtoType,
+} from './scholarship-document.dto.schema';
+
+export {
+  AddRequirementDtoSchema,
+  UpdateRequirementDtoSchema,
+  validateAddRequirementDto,
+  validateUpdateRequirementDto,
+  type AddRequirementDtoType,
+  type UpdateRequirementDtoType,
+} from './scholarship-requirement.dto.schema';

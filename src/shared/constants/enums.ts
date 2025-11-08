@@ -33,3 +33,12 @@ export enum Currency {
   VND = 'VND',
   USD = 'USD',
 }
+
+export enum OrganizationType {
+  UNIVERSITY = 'UNIVERSITY',
+  COMPANY = 'COMPANY',
+  FOUNDATION = 'FOUNDATION',
+  GOVERNMENT = 'GOVERNMENT',
+  NGO = 'NGO',
+  OTHER = 'OTHER',
+}

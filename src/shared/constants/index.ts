@@ -4,6 +4,7 @@ export {
   ScholarshipStatus,
   ApplicationStatus,
   Currency,
+  OrganizationType,
 } from './enums';
 
 export {

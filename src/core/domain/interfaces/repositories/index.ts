@@ -5,3 +5,8 @@ export * from './application.repository.interface';
 export * from './saved-scholarship.repository.interface';
 export * from './scholarship-category.repository.interface';
 export * from './profile.repository.interface';
+export * from './scholarship-document.repository.interface';
+export * from './scholarship-requirement.repository.interface';
+export * from './sponsor-profile.repository.interface';
+export * from './student-profile.repository.interface';
+export * from './eligibility-criteria.repository.interface';

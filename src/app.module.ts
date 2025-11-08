@@ -10,6 +10,11 @@ import { ApplicationModule } from './presentation/http/modules/application.modul
 import { SavedScholarshipModule } from './presentation/http/modules/saved-scholarship.module';
 import { ScholarshipCategoryModule } from './presentation/http/modules/scholarship-category.module';
 import { ProfileModule } from './presentation/http/modules/profile.module';
+import { ScholarshipDocumentModule } from './presentation/http/modules/scholarship-document.module';
+import { ScholarshipRequirementModule } from './presentation/http/modules/scholarship-requirement.module';
+import { SponsorProfileModule } from './presentation/http/modules/sponsor-profile.module';
+import { StudentProfileModule } from './presentation/http/modules/student-profile.module';
+import { EligibilityCriteriaModule } from './presentation/http/modules/eligibility-criteria.module';
 import { HealthController } from './presentation/http/controllers/health.controller';
 
 @Module({
@@ -28,6 +33,11 @@ import { HealthController } from './presentation/http/controllers/health.control
     SavedScholarshipModule,
     ScholarshipCategoryModule,
     ProfileModule,
+    ScholarshipDocumentModule,
+    ScholarshipRequirementModule,
+    SponsorProfileModule,
+    StudentProfileModule,
+    EligibilityCriteriaModule,
   ],
   controllers: [HealthController],
   providers: [],

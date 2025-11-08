@@ -9,7 +9,6 @@
 - [5. Admin Flow](#5-admin-flow)
 - [6. Business Rules](#6-business-rules)
 
-
 ## 1. System Overview
 
 Scholarship Management System là platform quản lý học bổng với 3 vai trò chính:
@@ -30,20 +29,31 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ## 2. User Roles & Capabilities
 
-| Feature             | STUDENT  | SPONSOR    | ADMIN    |
-| ------------------- | -------- | ---------- | -------- |
-| View scholarships   | ✅       | ✅         | ✅       |
-| Search scholarships | ✅       | ✅         | ✅       |
-| Create scholarship  | ❌       | ✅ (own)   | ✅ (any) |
-| Update scholarship  | ❌       | ✅ (own)   | ✅ (any) |
-| Delete scholarship  | ❌       | ✅ (own)   | ✅ (any) |
-| Publish scholarship | ❌       | ✅ (own)   | ✅ (any) |
-| Submit application  | ✅       | ❌         | ❌       |
-| View applications   | ✅ (own) | ✅ (their) | ✅ (all) |
-| Approve application | ❌       | ✅ (their) | ✅ (all) |
-| Reject application  | ❌       | ✅ (their) | ✅ (all) |
-| Upload documents    | ✅ (own) | ❌         | ❌       |
-| Manage users        | ❌       | ❌         | ✅       |
+| Feature                      | STUDENT  | SPONSOR    | ADMIN    |
+| ---------------------------- | -------- | ---------- | -------- |
+| View scholarships            | ✅       | ✅         | ✅       |
+| Search scholarships          | ✅       | ✅         | ✅       |
+| Save scholarships (favorite) | ✅       | ❌         | ❌       |
+| View categories              | ✅       | ✅         | ✅       |
+| Create scholarship           | ❌       | ✅ (own)   | ✅ (any) |
+| Update scholarship           | ❌       | ✅ (own)   | ✅ (any) |
+| Delete scholarship           | ❌       | ✅ (own)   | ✅ (any) |
+| Publish scholarship          | ❌       | ✅ (own)   | ✅ (any) |
+| Close scholarship            | ❌       | ✅ (own)   | ✅ (any) |
+| Add/Remove categories        | ❌       | ✅ (own)   | ✅ (any) |
+| Upload scholarship docs      | ❌       | ✅ (own)   | ✅ (any) |
+| Add/Edit requirements        | ❌       | ✅ (own)   | ✅ (any) |
+| Set eligibility criteria     | ❌       | ✅ (own)   | ✅ (any) |
+| Submit application           | ✅       | ❌         | ❌       |
+| View applications            | ✅ (own) | ✅ (their) | ✅ (all) |
+| Approve application          | ❌       | ✅ (their) | ✅ (all) |
+| Reject application           | ❌       | ✅ (their) | ✅ (all) |
+| Upload application docs      | ✅ (own) | ❌         | ❌       |
+| Manage user profile          | ✅ (own) | ✅ (own)   | ✅ (own) |
+| Create student profile       | ✅       | ❌         | ❌       |
+| Create sponsor profile       | ❌       | ✅         | ❌       |
+| Verify sponsor profile       | ❌       | ❌         | ✅       |
+| Manage users                 | ❌       | ❌         | ✅       |
 
 ---
 
@@ -108,7 +118,6 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 - Chỉ hiển thị scholarships có status = PUBLISHED
 - Hỗ trợ phân trang
 - Xem được: title, amount, deadline, requirements, GPA requirement
-
 
 ### 3.4. Tìm kiếm học bổng
 
@@ -244,7 +253,85 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 3.9. Rút đơn application
+### 3.9. Lưu học bổng yêu thích (Save/Favorite)
+
+**API:** `POST /scholarships/:id/save`
+
+**Logic:**
+
+- Student lưu scholarship vào danh sách yêu thích
+- 1 scholarship chỉ lưu được 1 lần
+- Dùng để xem lại sau
+
+**API xem danh sách đã lưu:** `GET /scholarships/saved?page=1&limit=10`
+
+**API bỏ lưu:** `DELETE /scholarships/:id/save`
+
+**API kiểm tra đã lưu chưa:** `GET /scholarships/:id/is-saved`
+
+---
+
+### 3.10. Tạo Student Profile
+
+**API:** `POST /students/profile`
+
+```json
+{
+  "university": "Ho Chi Minh City University of Technology",
+  "major": "Computer Science",
+  "yearOfStudy": 3,
+  "gpa": 3.75,
+  "expectedGraduation": "2025-06-30",
+  "skills": ["Java", "Python", "React", "Machine Learning"],
+  "interests": ["AI Research", "Web Development"],
+  "achievements": {
+    "awards": ["First Prize in National Programming Contest 2023"],
+    "publications": ["Paper on Deep Learning"],
+    "certifications": ["AWS Certified Developer"]
+  }
+}
+```
+
+**Logic:**
+
+- 1 student chỉ có 1 profile
+- GPA range: 0.00-4.00
+- yearOfStudy: 1-6
+- Dùng để sponsor review khi xét duyệt
+
+**API xem profile:** `GET /students/me/profile`
+
+**API cập nhật:** `PATCH /students/me/profile`
+
+**API xem public profile:** `GET /students/:userId/profile`
+
+---
+
+### 3.11. Quản lý Profile & Avatar
+
+**API xem profile:** `GET /users/me/profile`
+
+**API cập nhật profile:** `PATCH /users/me/profile`
+
+```json
+{
+  "fullName": "Nguyen Van B",
+  "phone": "+84987654321",
+  "address": "456 Le Loi, Q1, TPHCM"
+}
+```
+
+**API cập nhật avatar:** `PATCH /users/me/profile/avatar`
+
+**File rules:**
+
+- Max 5MB
+- Types: JPG, PNG, JPEG
+- Lưu trên Supabase Storage
+
+---
+
+### 3.12. Rút đơn application
 
 **API:** `PATCH /applications/:id/withdraw`
 
@@ -261,12 +348,15 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ```
 1. Register/Login → Nhận JWT token
-2. Search scholarships → Tìm học bổng phù hợp
-3. View details → Kiểm tra requirements, deadline, GPA
-4. Submit application → Nộp đơn (check GPA, deadline)
-5. Upload documents → Bảng điểm, thư giới thiệu, chứng chỉ...
-6. View my applications → Theo dõi status
-7. [Optional] Withdraw → Rút đơn nếu PENDING
+2. Create student profile → Academic info (GPA, major, skills)
+3. Update profile & avatar → Basic info + photo
+4. Search scholarships → Tìm học bổng phù hợp
+5. Save scholarships → Bookmark để xem lại
+6. View details → Kiểm tra requirements, eligibility, deadline
+7. Submit application → Nộp đơn (auto check eligibility)
+8. Upload documents → Bảng điểm, thư giới thiệu, chứng chỉ
+9. View my applications → Theo dõi status
+10. [Optional] Withdraw → Rút đơn nếu PENDING
 ```
 
 ---
@@ -293,7 +383,38 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.2. Tạo học bổng mới
+### 4.2. Tạo Sponsor Profile
+
+**API:** `POST /sponsors/profile`
+
+```json
+{
+  "organizationName": "FPT Corporation",
+  "organizationType": "COMPANY",
+  "website": "https://fpt.com.vn",
+  "description": "Leading technology corporation in Vietnam",
+  "foundedYear": 1988,
+  "contactEmail": "scholarships@fpt.com.vn",
+  "contactPhone": "+842839300300"
+}
+```
+
+**Logic:**
+
+- 1 sponsor chỉ có 1 profile
+- organizationType: COMPANY, NGO, GOVERNMENT, INDIVIDUAL
+- Mặc định isVerified = false
+- Admin phải verify sau
+
+**API xem profile:** `GET /sponsors/me/profile`
+
+**API cập nhật:** `PATCH /sponsors/me/profile`
+
+**API xem public profile:** `GET /sponsors/:userId/profile`
+
+---
+
+### 4.3. Tạo học bổng mới
 
 **API:** `POST /scholarships`
 
@@ -339,7 +460,122 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.3. Cập nhật học bổng
+### 4.4. Thêm Categories cho học bổng
+
+**API:** `GET /scholarships/categories`
+
+**Logic:**
+
+- Xem tất cả categories có sẵn
+- Public API
+
+**API thêm category:** `POST /scholarships/:id/categories`
+
+```json
+{
+  "categoryId": "cat-001"
+}
+```
+
+**Logic:**
+
+- 1 scholarship có thể có nhiều categories
+- Giúp students filter dễ hơn
+
+**API xóa category:** `DELETE /scholarships/:id/categories/:categoryId`
+
+---
+
+### 4.5. Upload tài liệu cho học bổng
+
+**API:** `POST /scholarships/:scholarshipId/documents`
+
+**Request:** FormData với fields:
+
+- `file`: File (single)
+- `title`: string
+- `description`: string (optional)
+
+**File rules:**
+
+- Max 10MB per file
+- Types: PDF, DOC, DOCX, JPG, PNG
+
+**Logic:**
+
+- Upload hướng dẫn, mẫu đơn, v.v.
+- Students có thể download khi xem scholarship
+
+**API list documents:** `GET /scholarships/:scholarshipId/documents`
+
+**API get document:** `GET /scholarships/:scholarshipId/documents/:documentId`
+
+**API download:** `GET /scholarships/:scholarshipId/documents/:documentId/download`
+
+**API delete:** `DELETE /scholarships/:scholarshipId/documents/:documentId`
+
+---
+
+### 4.6. Thêm Requirements cho học bổng
+
+**API:** `POST /scholarships/:scholarshipId/requirements`
+
+```json
+{
+  "title": "Academic Transcript",
+  "description": "Official transcript from your university",
+  "isRequired": true,
+  "displayOrder": 1
+}
+```
+
+**Logic:**
+
+- Liệt kê các yêu cầu/giấy tờ cần nộp
+- displayOrder để sắp xếp thứ tự
+- isRequired: bắt buộc hoặc tùy chọn
+
+**API get requirements:** `GET /scholarships/:scholarshipId/requirements`
+
+**API update:** `PATCH /scholarships/:scholarshipId/requirements/:requirementId`
+
+**API delete:** `DELETE /scholarships/:scholarshipId/requirements/:requirementId`
+
+---
+
+### 4.7. Thiết lập Eligibility Criteria
+
+**API:** `POST /scholarships/:scholarshipId/eligibility`
+
+```json
+{
+  "minGpa": 3.5,
+  "maxGpa": 4.0,
+  "minAge": 18,
+  "maxAge": 25,
+  "allowedMajors": ["Computer Science", "Software Engineering"],
+  "allowedYearsOfStudy": [2, 3, 4],
+  "nationality": "Vietnamese",
+  "otherRequirements": {
+    "hasResearchExperience": true,
+    "minPublications": 1
+  }
+}
+```
+
+**Logic:**
+
+- Thiết lập tiêu chí đủ điều kiện chi tiết
+- Tự động validate khi student apply
+- 1 scholarship chỉ có 1 bộ criteria
+
+**API get criteria:** `GET /scholarships/:scholarshipId/eligibility`
+
+**API update:** `PATCH /scholarships/:scholarshipId/eligibility`
+
+---
+
+### 4.8. Cập nhật học bổng
 
 **API:** `PATCH /scholarships/:id`
 
@@ -361,7 +597,7 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.4. Publish học bổng
+### 4.9. Publish học bổng
 
 **API:** `PATCH /scholarships/:id/publish`
 
@@ -374,7 +610,7 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.5. Xem applications cho học bổng của mình
+### 4.10. Xem applications cho học bổng của mình
 
 **API:** `GET /scholarships/:scholarshipId/applications?page=1`
 
@@ -409,7 +645,7 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.6. Review application: Approve
+### 4.11. Review application: Approve
 
 **API:** `PATCH /applications/:id/approve`
 
@@ -431,7 +667,7 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.7. Review application: Reject
+### 4.12. Review application: Reject
 
 **API:** `PATCH /applications/:id/reject`
 
@@ -452,7 +688,7 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.8. Đóng học bổng (Close)
+### 4.13. Đóng học bổng (Close)
 
 **API:** `PATCH /scholarships/:id/close`
 
@@ -464,7 +700,7 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ---
 
-### 4.9. Xóa học bổng
+### 4.14. Xóa học bổng
 
 **API:** `DELETE /scholarships/:id`
 
@@ -480,12 +716,17 @@ Scholarship Management System là platform quản lý học bổng với 3 vai t
 
 ```
 1. Register/Login → Role SPONSOR
-2. Create scholarship → Status: DRAFT
-3. Edit scholarship → Update thông tin
-4. Publish scholarship → Public cho students
-5. Receive applications → Students apply
-6. Review applications → Approve/Reject
-7. Close scholarship → Hết hạn hoặc đủ số lượng
+2. Create sponsor profile → Organization info + verification
+3. Create scholarship → Status: DRAFT
+4. Add categories → Tag scholarship với categories
+5. Upload documents → Hướng dẫn, mẫu đơn
+6. Add requirements → Danh sách giấy tờ cần nộp
+7. Set eligibility criteria → Tiêu chí đủ điều kiện
+8. Edit scholarship → Update thông tin
+9. Publish scholarship → Public cho students
+10. Receive applications → Students apply (auto check eligibility)
+11. Review applications → Approve/Reject
+12. Close scholarship → Hết hạn hoặc đủ số lượng
 ```
 
 ---
@@ -504,6 +745,7 @@ Admin có **FULL PERMISSIONS** - quản lý toàn bộ hệ thống.
 
 - `role`: Filter by STUDENT, SPONSOR, ADMIN
 - `status`: Filter by ACTIVE, INACTIVE, BANNED
+- `search`: Search by name or email
 
 **Logic:**
 
@@ -530,7 +772,8 @@ Admin có **FULL PERMISSIONS** - quản lý toàn bộ hệ thống.
 ```json
 {
   "fullName": "Updated Name",
-  "status": "BANNED"
+  "phone": "+84987654321",
+  "status": "INACTIVE"
 }
 ```
 
@@ -542,14 +785,56 @@ Admin có **FULL PERMISSIONS** - quản lý toàn bộ hệ thống.
 
 ---
 
-#### Delete user
+#### Change user password
 
-**API:** `DELETE /users/:id`
+**API:** `PATCH /users/:id/password`
+
+```json
+{
+  "newPassword": "newSecurePass123"
+}
+```
 
 **Logic:**
 
-- Xóa bất kỳ user (trừ chính mình)
-- Cascade delete: Xóa cả scholarships và applications liên quan
+- Admin reset password cho user
+- User sẽ phải đăng nhập lại
+
+---
+
+#### Suspend user
+
+**API:** `PATCH /users/:id/suspend`
+
+**Logic:**
+
+- Tạm khóa tài khoản
+- Status → INACTIVE
+- User không thể đăng nhập
+
+---
+
+#### Activate user
+
+**API:** `PATCH /users/:id/activate`
+
+**Logic:**
+
+- Kích hoạt lại tài khoản
+- Status → ACTIVE
+- User có thể đăng nhập trở lại
+
+---
+
+#### Verify sponsor profile
+
+**API:** `PATCH /sponsors/:userId/verify`
+
+**Logic:**
+
+- Admin xác thực sponsor là tổ chức thật
+- isVerified → true
+- Hiển thị badge "Verified" trên UI
 
 ---
 
@@ -558,8 +843,18 @@ Admin có **FULL PERMISSIONS** - quản lý toàn bộ hệ thống.
 Admin có thể làm **TẤT CẢ** những gì Sponsor làm được, nhưng cho **MỌI** scholarships:
 
 - `GET /scholarships` - Xem tất cả (including DRAFT)
+- `GET /scholarships/categories` - Quản lý categories
 - `POST /scholarships` - Tạo cho bất kỳ sponsor
 - `PATCH /scholarships/:id` - Update bất kỳ scholarship
+- `POST /scholarships/:id/categories` - Add categories
+- `DELETE /scholarships/:id/categories/:categoryId` - Remove categories
+- `POST /scholarships/:scholarshipId/documents` - Upload documents
+- `DELETE /scholarships/:scholarshipId/documents/:docId` - Delete documents
+- `POST /scholarships/:scholarshipId/requirements` - Add requirements
+- `PATCH /scholarships/:scholarshipId/requirements/:reqId` - Update requirements
+- `DELETE /scholarships/:scholarshipId/requirements/:reqId` - Delete requirements
+- `POST /scholarships/:scholarshipId/eligibility` - Set eligibility criteria
+- `PATCH /scholarships/:scholarshipId/eligibility` - Update criteria
 - `PATCH /scholarships/:id/publish` - Publish bất kỳ
 - `PATCH /scholarships/:id/close` - Close bất kỳ
 - `DELETE /scholarships/:id` - Delete bất kỳ (kể cả có applications)
@@ -569,6 +864,7 @@ Admin có thể làm **TẤT CẢ** những gì Sponsor làm được, nhưng ch
 - Không bị giới hạn ownership
 - Có thể tạo scholarship cho sponsor khác
 - Có quyền xóa kể cả scholarship có applications
+- Quản lý toàn bộ categories, documents, requirements, criteria
 
 ---
 
@@ -619,11 +915,13 @@ Admin có thể review **TẤT CẢ** applications:
 
 ```
 1. Login → Role ADMIN
-2. Manage users → View, update, ban, delete
-3. Manage scholarships → Full control (all sponsors)
-4. Manage applications → Review all applications
-5. View statistics → System overview
-6. System monitoring → Logs, errors, performance
+2. Manage users → View, update, suspend, activate, change password
+3. Verify sponsors → Review and verify sponsor profiles
+4. Manage scholarships → Full control (all sponsors)
+   - Categories, Documents, Requirements, Eligibility Criteria
+5. Manage applications → Review all applications
+6. View statistics → System overview
+7. System monitoring → Logs, errors, performance
 ```
 
 ---
@@ -684,6 +982,7 @@ PENDING → (approve) → APPROVED
 
 - 0.0 - 4.0
 - Application.currentGpa >= Scholarship.gpaRequirement
+- Validated against eligibility criteria if exists
 
 **Deadline:**
 
@@ -692,9 +991,32 @@ PENDING → (approve) → APPROVED
 
 **File Upload:**
 
-- Max 5 files per request
-- Max 10MB per file
-- Types: PDF, DOC, DOCX, JPG, PNG
+- **Application documents:** Max 5 files per request, Max 10MB per file
+- **Scholarship documents:** Max 10MB per file
+- **Avatar:** Max 5MB, JPG/PNG/JPEG only
+- Types (documents): PDF, DOC, DOCX, JPG, PNG
+
+**Student Profile:**
+
+- GPA: 0.00-4.00
+- yearOfStudy: 1-6
+- skills, interests: arrays
+- achievements: JSON object
+
+**Sponsor Profile:**
+
+- organizationType: COMPANY, NGO, GOVERNMENT, INDIVIDUAL
+- website: valid URL format
+- description: min 50 characters
+- contactEmail: valid email
+
+**Eligibility Criteria:**
+
+- minGpa/maxGpa: 0.0-4.0, maxGpa >= minGpa
+- minAge/maxAge: positive integers, maxAge >= minAge
+- allowedMajors: array of strings
+- allowedYearsOfStudy: array of integers 1-6
+- otherRequirements: JSON object
 
 ---
 
@@ -702,17 +1024,26 @@ PENDING → (approve) → APPROVED
 
 **Ownership:**
 
-- SPONSOR chỉ manage scholarships của mình
-- STUDENT chỉ manage applications của mình
+- SPONSOR chỉ manage scholarships của mình (categories, documents, requirements, criteria)
+- STUDENT chỉ manage applications của mình và có thể save scholarships
 - ADMIN manage tất cả
 
 **Role Guards:**
 
 - Auth endpoints: Public
 - Scholarships list/search/details: Public
+- Categories list: Public
+- Documents list/download: Public
+- Requirements list: Public
+- Eligibility criteria view: Public
+- Student/Sponsor profile view: Public
 - Create scholarship: SPONSOR, ADMIN
 - Submit application: STUDENT
 - Approve/Reject: SPONSOR (own), ADMIN (all)
+- Save scholarship: STUDENT only
+- Create student profile: STUDENT only
+- Create sponsor profile: SPONSOR only
+- Verify sponsor: ADMIN only
 - User management: ADMIN only
 
 ---
@@ -721,14 +1052,22 @@ PENDING → (approve) → APPROVED
 
 **Cascade Rules:**
 
-- Delete User → Delete Scholarships + Applications
-- Delete Scholarship → Delete Applications (chỉ admin)
-- Ban User → Không login được
+- Delete User → Delete Student/Sponsor Profile, Scholarships + Applications
+- Delete Scholarship → Delete Categories, Documents, Requirements, Criteria, Applications (chỉ admin)
+- Suspend User → Không login được, scholarships vẫn hiển thị
 
 **Unique Constraints:**
 
 - User.email: Unique
 - Application(studentId, scholarshipId): Unique (1 student 1 scholarship)
+- StudentProfile.userId: Unique (1 student 1 profile)
+- SponsorProfile.userId: Unique (1 sponsor 1 profile)
+- EligibilityCriteria.scholarshipId: Unique (1 scholarship 1 criteria)
+
+**JSON Fields:**
+
+- StudentProfile.achievements: JSON (awards, publications, certifications)
+- EligibilityCriteria.otherRequirements: JSON (custom requirements)
 
 ---
 
@@ -740,6 +1079,14 @@ PENDING → (approve) → APPROVED
 GET    /scholarships              - List scholarships
 GET    /scholarships/search       - Search scholarships
 GET    /scholarships/:id          - Get scholarship details
+GET    /scholarships/categories   - List all categories
+GET    /scholarships/:id/documents - List documents
+GET    /scholarships/:id/documents/:docId - Get document
+GET    /scholarships/:id/documents/:docId/download - Download document
+GET    /scholarships/:id/requirements - List requirements
+GET    /scholarships/:id/eligibility - Get eligibility criteria
+GET    /sponsors/:userId/profile  - View sponsor profile (public)
+GET    /students/:userId/profile  - View student profile (public)
 POST   /auth/register             - Register
 POST   /auth/login                - Login
 GET    /health                    - Health check
@@ -748,23 +1095,43 @@ GET    /health                    - Health check
 ### Student APIs
 
 ```
+POST   /students/profile          - Create student profile
+GET    /students/me/profile       - Get my student profile
+PATCH  /students/me/profile       - Update my student profile
+POST   /scholarships/:id/save     - Save scholarship (favorite)
+DELETE /scholarships/:id/save     - Unsave scholarship
+GET    /scholarships/saved        - Get saved scholarships
+GET    /scholarships/:id/is-saved - Check if saved
 POST   /applications              - Submit application
-POST   /applications/:id/documents - Upload documents
-GET    /applications/my-applications - My applications
+POST   /applications/:id/documents - Upload application documents
+GET    /applications              - My applications
 PATCH  /applications/:id/withdraw - Withdraw application
-GET    /users/profile             - My profile
-PATCH  /users/profile             - Update my profile
+GET    /users/me/profile          - Get my profile
+PATCH  /users/me/profile          - Update my profile
+PATCH  /users/me/profile/avatar   - Update avatar
 ```
 
 ### Sponsor APIs
 
 ```
+POST   /sponsors/profile          - Create sponsor profile
+GET    /sponsors/me/profile       - Get my sponsor profile
+PATCH  /sponsors/me/profile       - Update my sponsor profile
 POST   /scholarships              - Create scholarship
 PATCH  /scholarships/:id          - Update scholarship
 PATCH  /scholarships/:id/publish  - Publish scholarship
 PATCH  /scholarships/:id/close    - Close scholarship
 DELETE /scholarships/:id          - Delete scholarship
-GET    /scholarships/:id/applications - Applications for my scholarship
+POST   /scholarships/:id/categories - Add category
+DELETE /scholarships/:id/categories/:catId - Remove category
+POST   /scholarships/:id/documents - Upload document
+DELETE /scholarships/:id/documents/:docId - Delete document
+POST   /scholarships/:id/requirements - Add requirement
+PATCH  /scholarships/:id/requirements/:reqId - Update requirement
+DELETE /scholarships/:id/requirements/:reqId - Delete requirement
+POST   /scholarships/:id/eligibility - Set eligibility criteria
+PATCH  /scholarships/:id/eligibility - Update eligibility criteria
+GET    /applications              - Applications for my scholarships
 PATCH  /applications/:id/approve  - Approve application
 PATCH  /applications/:id/reject   - Reject application
 ```
@@ -775,11 +1142,15 @@ PATCH  /applications/:id/reject   - Reject application
 GET    /users                     - List all users
 GET    /users/:id                 - Get user details
 PATCH  /users/:id                 - Update any user
-DELETE /users/:id                 - Delete any user
+PATCH  /users/:id/password        - Change user password
+PATCH  /users/:id/suspend         - Suspend user
+PATCH  /users/:id/activate        - Activate user
+PATCH  /sponsors/:userId/verify   - Verify sponsor profile
 GET    /applications              - All applications
 PATCH  /applications/:id/approve  - Approve any application
 PATCH  /applications/:id/reject   - Reject any application
 GET    /admin/statistics          - System statistics
++ All Sponsor APIs (for any scholarship)
 ```
 
 ---
@@ -791,12 +1162,17 @@ GET    /admin/statistics          - System statistics
 ```
 1. Student registers → POST /auth/register { role: "STUDENT" }
 2. Student logs in → POST /auth/login → Receives JWT token
-3. Student searches → GET /scholarships/search?field=STEM&minGpa=3.0
-4. Student views details → GET /scholarships/550e8400-...
-5. Student applies → POST /applications { scholarshipId, currentGpa: 3.8, ... }
-6. Student uploads docs → POST /applications/990e8400-.../documents (FormData)
-7. Sponsor reviews → PATCH /applications/990e8400-.../approve
-8. Student checks status → GET /applications/my-applications → status: APPROVED ✅
+3. Student creates profile → POST /students/profile { university, major, gpa, skills, ... }
+4. Student updates avatar → PATCH /users/me/profile/avatar (FormData)
+5. Student searches → GET /scholarships/search?field=STEM&minGpa=3.0
+6. Student saves scholarship → POST /scholarships/550e8400-.../save
+7. Student views details → GET /scholarships/550e8400-...
+8. Student checks eligibility → GET /scholarships/550e8400-.../eligibility
+9. Student applies → POST /applications { scholarshipId, currentGpa: 3.8, ... }
+   → System auto-validates against eligibility criteria
+10. Student uploads docs → POST /applications/990e8400-.../documents (FormData)
+11. Sponsor reviews → PATCH /applications/990e8400-.../approve
+12. Student checks status → GET /applications → status: APPROVED ✅
 ```
 
 ---
@@ -805,14 +1181,20 @@ GET    /admin/statistics          - System statistics
 
 ```
 1. Sponsor registers → POST /auth/register { role: "SPONSOR" }
-2. Sponsor creates → POST /scholarships { title, amount, ... } → status: DRAFT
-3. Sponsor edits → PATCH /scholarships/770e8400-... { amount: 40000000 }
-4. Sponsor publishes → PATCH /scholarships/770e8400-.../publish → status: PUBLISHED
-5. Students apply → (multiple applications received)
-6. Sponsor reviews → GET /scholarships/770e8400-.../applications
-7. Sponsor approves → PATCH /applications/abc123.../approve { reviewNote }
-8. Sponsor rejects → PATCH /applications/def456.../reject { reviewNote }
-9. Sponsor closes → PATCH /scholarships/770e8400-.../close → status: CLOSED
+2. Sponsor creates profile → POST /sponsors/profile { organizationName, ... }
+3. Admin verifies sponsor → PATCH /sponsors/660e8400-.../verify
+4. Sponsor creates scholarship → POST /scholarships { title, amount, ... } → status: DRAFT
+5. Sponsor adds categories → POST /scholarships/770e8400-.../categories { categoryId }
+6. Sponsor uploads documents → POST /scholarships/770e8400-.../documents (FormData)
+7. Sponsor adds requirements → POST /scholarships/770e8400-.../requirements { title, description, ... }
+8. Sponsor sets eligibility → POST /scholarships/770e8400-.../eligibility { minGpa, allowedMajors, ... }
+9. Sponsor edits scholarship → PATCH /scholarships/770e8400-... { amount: 40000000 }
+10. Sponsor publishes → PATCH /scholarships/770e8400-.../publish → status: PUBLISHED
+11. Students apply → (multiple applications received with auto eligibility check)
+12. Sponsor reviews → GET /applications?scholarshipId=770e8400-...
+13. Sponsor approves → PATCH /applications/abc123.../approve { comment }
+14. Sponsor rejects → PATCH /applications/def456.../reject { reason }
+15. Sponsor closes → PATCH /scholarships/770e8400-.../close → status: CLOSED
 ```
 
 ---
@@ -822,12 +1204,16 @@ GET    /admin/statistics          - System statistics
 ```
 1. Admin logs in → POST /auth/login { email: "admin@...", password }
 2. Admin views users → GET /users?status=ACTIVE
-3. Admin bans user → PATCH /users/user123 { status: "BANNED" }
-4. Admin views all scholarships → GET /scholarships (including DRAFT)
-5. Admin publishes pending scholarship → PATCH /scholarships/xyz789/publish
-6. Admin views all applications → GET /applications
-7. Admin overrides rejection → PATCH /applications/app123/approve
-8. Admin views stats → GET /admin/statistics
+3. Admin suspends user → PATCH /users/user123/suspend
+4. Admin verifies sponsor → PATCH /sponsors/sponsor123/verify
+5. Admin views all scholarships → GET /scholarships (including DRAFT)
+6. Admin publishes pending scholarship → PATCH /scholarships/xyz789/publish
+7. Admin adds categories to scholarship → POST /scholarships/xyz789/categories
+8. Admin views all applications → GET /applications
+9. Admin overrides rejection → PATCH /applications/app123/approve
+10. Admin views stats → GET /admin/statistics
+11. Admin changes user password → PATCH /users/user123/password
+12. Admin activates suspended user → PATCH /users/user123/activate
 ```
 
 ---
@@ -902,15 +1288,26 @@ POST /applications (deadline passed)
 
 ### Student: Tìm và Apply Học Bổng
 
-- Tìm kiếm → Xem chi tiết → Apply → Upload documents → Theo dõi status
+- Tạo profile (GPA, skills, achievements) → Tìm kiếm → Save yêu thích → Xem chi tiết + eligibility → Apply (auto-validate) → Upload documents → Theo dõi status
 
 ### Sponsor: Tạo và Quản Lý Học Bổng
 
-- Tạo (DRAFT) → Edit → Publish → Nhận applications → Review (Approve/Reject)
+- Tạo profile (organization info) → Verified by Admin → Tạo scholarship (DRAFT) → Add categories, documents, requirements, eligibility criteria → Edit → Publish → Nhận applications → Review (Approve/Reject) → Close
 
 ### Admin: Quản Trị Hệ Thống
 
-- Full control users, scholarships, applications → Statistics & monitoring
+- Full control users (suspend/activate, change password) → Verify sponsors → Manage scholarships (categories, documents, requirements, criteria) → Review all applications → Statistics & monitoring
+
+**Total Features:**
+
+- 13 Modules
+- 54 API Endpoints
+- 12 Domain Entities
+- 3 User Roles (Student, Sponsor, Admin)
+- Complete scholarship lifecycle management
+- Automated eligibility validation
+- File upload (documents & avatars)
+- Detailed profiles for students and sponsors
 
 **Swagger Documentation:** `http://localhost:3000/api/docs`
 

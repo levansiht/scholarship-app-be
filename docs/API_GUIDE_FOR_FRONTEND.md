@@ -29,17 +29,85 @@ Swagger: {BASE_URL}/api/docs
 - [6. Create Scholarship](#6-create-scholarship)
 - [7. Update Scholarship](#7-update-scholarship)
 - [8. Publish Scholarship](#8-publish-scholarship)
+- [9. Close Scholarship](#9-close-scholarship)
+
+### Scholarship Categories
+
+- [10. Get All Categories](#10-get-all-categories)
+- [11. Add Category to Scholarship](#11-add-category-to-scholarship)
+- [12. Remove Category from Scholarship](#12-remove-category-from-scholarship)
+
+### Saved Scholarships (Favorites)
+
+- [13. Save Scholarship](#13-save-scholarship)
+- [14. Unsave Scholarship](#14-unsave-scholarship)
+- [15. Get Saved Scholarships](#15-get-saved-scholarships)
+- [16. Check If Saved](#16-check-if-saved)
+
+### Scholarship Documents
+
+- [17. Upload Document](#17-upload-document)
+- [18. List Documents](#18-list-documents)
+- [19. Get Document Details](#19-get-document-details)
+- [20. Download Document](#20-download-document)
+- [21. Delete Document](#21-delete-document)
+
+### Scholarship Requirements
+
+- [22. Add Requirement](#22-add-requirement)
+- [23. Get Requirements](#23-get-requirements)
+- [24. Update Requirement](#24-update-requirement)
+- [25. Delete Requirement](#25-delete-requirement)
+
+### Eligibility Criteria
+
+- [26. Set Eligibility Criteria](#26-set-eligibility-criteria)
+- [27. Update Eligibility Criteria](#27-update-eligibility-criteria)
+- [28. Get Eligibility Criteria](#28-get-eligibility-criteria)
 
 ### Applications
 
-- [9. Submit Application](#9-submit-application)
-- [10. Upload Documents](#10-upload-documents)
-- 11-15: Approve, Reject, Withdraw... (xem Swagger)
+- [29. Submit Application](#29-submit-application)
+- [30. Get Application Details](#30-get-application-details)
+- [31. List Applications](#31-list-applications)
+- [32. Approve Application](#32-approve-application)
+- [33. Reject Application](#33-reject-application)
+- [34. Withdraw Application](#34-withdraw-application)
+- [35. Upload Application Documents](#35-upload-application-documents)
 
-### Users & System
+### User Profile
 
-- APIs quản lý users (Admin only) - xem Swagger
-- Health check endpoint
+- [36. Get My Profile](#36-get-my-profile)
+- [37. Update My Profile](#37-update-my-profile)
+- [38. Update Avatar](#38-update-avatar)
+
+### Sponsor Profile
+
+- [39. Create Sponsor Profile](#39-create-sponsor-profile)
+- [40. Get My Sponsor Profile](#40-get-my-sponsor-profile)
+- [41. Update My Sponsor Profile](#41-update-my-sponsor-profile)
+- [42. Get Sponsor Profile by User ID](#42-get-sponsor-profile-by-user-id)
+- [43. Verify Sponsor (Admin)](#43-verify-sponsor-admin)
+
+### Student Profile
+
+- [44. Create Student Profile](#44-create-student-profile)
+- [45. Get My Student Profile](#45-get-my-student-profile)
+- [46. Update My Student Profile](#46-update-my-student-profile)
+- [47. Get Student Profile by User ID](#47-get-student-profile-by-user-id)
+
+### User Management (Admin)
+
+- [48. Get User by ID](#48-get-user-by-id)
+- [49. List Users](#49-list-users)
+- [50. Update User](#50-update-user)
+- [51. Change User Password](#51-change-user-password)
+- [52. Suspend User](#52-suspend-user)
+- [53. Activate User](#53-activate-user)
+
+### System
+
+- [54. Health Check](#54-health-check)
 
 ---
 
@@ -520,7 +588,876 @@ Authorization: Bearer {token}
 
 ---
 
-### 9. Submit Application
+### 9. Close Scholarship
+
+```http
+PATCH /scholarships/:id/close
+Authorization: Bearer {token}
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `id`: Scholarship UUID
+
+**Success Response (200):**
+
+```json
+{
+  "id": "770e8400-e29b-41d4-a716-446655440000",
+  "status": "CLOSED",
+  "closedAt": "2024-11-08T10:00:00.000Z",
+  ...
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description                   |
+| ---- | ------------ | ----------------------------- |
+| 401  | Unauthorized | Missing or invalid token      |
+| 403  | Forbidden    | Not owner or not ADMIN        |
+| 404  | Not Found    | Scholarship doesn't exist     |
+| 409  | Conflict     | Scholarship is already CLOSED |
+
+**Business Logic:**
+
+- Đóng scholarship (không nhận thêm applications)
+- Chỉ ADMIN hoặc owner có thể close
+- Scholarship phải đang PUBLISHED mới close được
+- Các applications hiện tại vẫn được xử lý bình thường
+
+---
+
+## Scholarship Categories
+
+### 10. Get All Categories
+
+```http
+GET /scholarships/categories
+```
+
+**Permission:** Public
+
+**Success Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "cat-001",
+      "name": "Engineering",
+      "description": "Scholarships for engineering students",
+      "scholarshipCount": 25
+    },
+    {
+      "id": "cat-002",
+      "name": "Business",
+      "description": "Business and management scholarships",
+      "scholarshipCount": 18
+    }
+  ]
+}
+```
+
+**Business Logic:**
+
+- Lấy danh sách tất cả categories
+- Mỗi category có số lượng scholarships
+- Public API, không cần authentication
+
+---
+
+### 11. Add Category to Scholarship
+
+```http
+POST /scholarships/:id/categories
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `id`: Scholarship UUID
+
+**Request Body:**
+
+```json
+{
+  "categoryId": "cat-001"
+}
+```
+
+**Success Response (201):**
+
+```json
+{
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "categoryId": "cat-001",
+  "addedAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description                           |
+| ---- | ------------ | ------------------------------------- |
+| 400  | Bad Request  | Invalid categoryId                    |
+| 401  | Unauthorized | Missing or invalid token              |
+| 403  | Forbidden    | Not owner or not ADMIN                |
+| 404  | Not Found    | Scholarship or category doesn't exist |
+| 409  | Conflict     | Category already added                |
+
+**Business Logic:**
+
+- Thêm category cho scholarship
+- 1 scholarship có thể có nhiều categories
+- Giúp filter và tìm kiếm dễ hơn
+
+---
+
+### 12. Remove Category from Scholarship
+
+```http
+DELETE /scholarships/:id/categories/:categoryId
+Authorization: Bearer {token}
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `id`: Scholarship UUID
+- `categoryId`: Category ID
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Category removed successfully"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description                       |
+| ---- | ------------ | --------------------------------- |
+| 401  | Unauthorized | Missing or invalid token          |
+| 403  | Forbidden    | Not owner or not ADMIN            |
+| 404  | Not Found    | Scholarship or category not found |
+
+---
+
+## Saved Scholarships (Favorites)
+
+### 13. Save Scholarship
+
+```http
+POST /scholarships/:id/save
+Authorization: Bearer {token}
+```
+
+**Permission:** STUDENT only
+
+**Path Parameters:**
+
+- `id`: Scholarship UUID
+
+**Success Response (201):**
+
+```json
+{
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "studentId": "880e8400-e29b-41d4-a716-446655440000",
+  "savedAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description                    |
+| ---- | ------------ | ------------------------------ |
+| 401  | Unauthorized | Not logged in                  |
+| 403  | Forbidden    | Not a student                  |
+| 404  | Not Found    | Scholarship doesn't exist      |
+| 409  | Conflict     | Already saved this scholarship |
+
+**Business Logic:**
+
+- Student lưu scholarship vào danh sách yêu thích
+- Giống tính năng "bookmark" để xem lại sau
+- 1 scholarship chỉ lưu được 1 lần
+
+---
+
+### 14. Unsave Scholarship
+
+```http
+DELETE /scholarships/:id/save
+Authorization: Bearer {token}
+```
+
+**Permission:** STUDENT only
+
+**Path Parameters:**
+
+- `id`: Scholarship UUID
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Scholarship removed from saved list"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description           |
+| ---- | ------------ | --------------------- |
+| 401  | Unauthorized | Not logged in         |
+| 403  | Forbidden    | Not a student         |
+| 404  | Not Found    | Scholarship not saved |
+
+---
+
+### 15. Get Saved Scholarships
+
+```http
+GET /scholarships/saved?page=1&limit=10
+Authorization: Bearer {token}
+```
+
+**Permission:** STUDENT only
+
+**Query Parameters:**
+
+| Parameter | Type   | Required | Default | Description    |
+| --------- | ------ | -------- | ------- | -------------- |
+| page      | number | No       | 1       | Page number    |
+| limit     | number | No       | 10      | Items per page |
+
+**Success Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "scholarship": {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "title": "STEM Excellence Scholarship 2024",
+        "amount": 50000000,
+        "deadline": "2024-12-31T23:59:59.000Z",
+        "status": "PUBLISHED",
+        ...
+      },
+      "savedAt": "2024-11-08T10:00:00.000Z"
+    }
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 5,
+    "totalPages": 1
+  }
+}
+```
+
+**Business Logic:**
+
+- Lấy danh sách scholarships đã save
+- Hỗ trợ phân trang
+- Sắp xếp theo thời gian save (mới nhất trước)
+
+---
+
+### 16. Check If Saved
+
+```http
+GET /scholarships/:id/is-saved
+Authorization: Bearer {token}
+```
+
+**Permission:** STUDENT only
+
+**Path Parameters:**
+
+- `id`: Scholarship UUID
+
+**Success Response (200):**
+
+```json
+{
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "isSaved": true,
+  "savedAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+**Business Logic:**
+
+- Kiểm tra xem scholarship có được save chưa
+- Dùng để hiển thị icon "heart" trên UI
+- Trả về `isSaved: false` nếu chưa save
+
+---
+
+## Scholarship Documents
+
+### 17. Upload Document
+
+```http
+POST /scholarships/:scholarshipId/documents
+Authorization: Bearer {token}
+Content-Type: multipart/form-data
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Request Body:**
+
+```
+FormData:
+- file: File (single file)
+- title: string
+- description: string (optional)
+```
+
+**File Validation:**
+
+- Max size: 10MB
+- Allowed types: PDF, DOC, DOCX, JPG, PNG
+- Field name: `file`
+
+**Success Response (201):**
+
+```json
+{
+  "id": "doc-001",
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Application Guidelines",
+  "description": "Detailed instructions for applying",
+  "fileName": "guidelines.pdf",
+  "fileUrl": "https://xxxxx.supabase.co/storage/v1/object/public/scholarship-documents/550e8400/guidelines.pdf",
+  "fileSize": 2048576,
+  "fileType": "application/pdf",
+  "uploadedAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description               |
+| ---- | ------------ | ------------------------- |
+| 400  | Bad Request  | Invalid file type, size   |
+| 401  | Unauthorized | Not logged in             |
+| 403  | Forbidden    | Not owner or not ADMIN    |
+| 404  | Not Found    | Scholarship doesn't exist |
+
+**Business Logic:**
+
+- Upload tài liệu cho scholarship (hướng dẫn, mẫu đơn, v.v.)
+- Lưu trên Supabase Storage
+- Sponsor/Admin upload cho scholarship của mình
+
+---
+
+### 18. List Documents
+
+```http
+GET /scholarships/:scholarshipId/documents
+```
+
+**Permission:** Public
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Success Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "doc-001",
+      "title": "Application Guidelines",
+      "description": "Detailed instructions",
+      "fileName": "guidelines.pdf",
+      "fileSize": 2048576,
+      "fileType": "application/pdf",
+      "uploadedAt": "2024-11-08T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Business Logic:**
+
+- Lấy danh sách tài liệu của scholarship
+- Public API, không cần auth
+- Không bao gồm download URL (phải gọi API riêng)
+
+---
+
+### 19. Get Document Details
+
+```http
+GET /scholarships/:scholarshipId/documents/:documentId
+```
+
+**Permission:** Public
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+- `documentId`: Document ID
+
+**Success Response (200):**
+
+```json
+{
+  "id": "doc-001",
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Application Guidelines",
+  "description": "Detailed instructions for applying",
+  "fileName": "guidelines.pdf",
+  "fileUrl": "https://xxxxx.supabase.co/storage/v1/object/public/...",
+  "fileSize": 2048576,
+  "fileType": "application/pdf",
+  "uploadedAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+---
+
+### 20. Download Document
+
+```http
+GET /scholarships/:scholarshipId/documents/:documentId/download
+```
+
+**Permission:** Public
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+- `documentId`: Document ID
+
+**Success Response (200):**
+
+- Returns file stream with appropriate headers
+- `Content-Type`: file MIME type
+- `Content-Disposition`: attachment; filename="..."
+
+**Business Logic:**
+
+- Download file trực tiếp
+- Browser sẽ tự động download file
+- Public access, không cần auth
+
+---
+
+### 21. Delete Document
+
+```http
+DELETE /scholarships/:scholarshipId/documents/:documentId
+Authorization: Bearer {token}
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+- `documentId`: Document ID
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Document deleted successfully"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description            |
+| ---- | ------------ | ---------------------- |
+| 401  | Unauthorized | Not logged in          |
+| 403  | Forbidden    | Not owner or not ADMIN |
+| 404  | Not Found    | Document doesn't exist |
+
+---
+
+## Scholarship Requirements
+
+### 22. Add Requirement
+
+```http
+POST /scholarships/:scholarshipId/requirements
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Request Body:**
+
+```json
+{
+  "title": "Academic Transcript",
+  "description": "Official transcript from your university",
+  "isRequired": true,
+  "displayOrder": 1
+}
+```
+
+**Validation:**
+
+- `title`: Required, min 3 characters
+- `description`: Required, min 10 characters
+- `isRequired`: Required, boolean
+- `displayOrder`: Required, positive integer
+
+**Success Response (201):**
+
+```json
+{
+  "id": "req-001",
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "title": "Academic Transcript",
+  "description": "Official transcript from your university",
+  "isRequired": true,
+  "displayOrder": 1,
+  "createdAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+**Error Responses:**
+
+| Code | Error            | Description               |
+| ---- | ---------------- | ------------------------- |
+| 400  | Validation Error | Invalid fields            |
+| 401  | Unauthorized     | Not logged in             |
+| 403  | Forbidden        | Not owner or not ADMIN    |
+| 404  | Not Found        | Scholarship doesn't exist |
+
+**Business Logic:**
+
+- Thêm yêu cầu cho scholarship (giấy tờ cần nộp)
+- displayOrder để sắp xếp thứ tự hiển thị
+- isRequired: bắt buộc hoặc tùy chọn
+
+---
+
+### 23. Get Requirements
+
+```http
+GET /scholarships/:scholarshipId/requirements
+```
+
+**Permission:** Public
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Success Response (200):**
+
+```json
+{
+  "data": [
+    {
+      "id": "req-001",
+      "title": "Academic Transcript",
+      "description": "Official transcript from your university",
+      "isRequired": true,
+      "displayOrder": 1
+    },
+    {
+      "id": "req-002",
+      "title": "Recommendation Letter",
+      "description": "Letter from professor or advisor",
+      "isRequired": true,
+      "displayOrder": 2
+    }
+  ]
+}
+```
+
+**Business Logic:**
+
+- Lấy danh sách requirements
+- Sắp xếp theo displayOrder
+- Public API
+
+---
+
+### 24. Update Requirement
+
+```http
+PATCH /scholarships/:scholarshipId/requirements/:requirementId
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+- `requirementId`: Requirement ID
+
+**Request Body:** (partial update)
+
+```json
+{
+  "title": "Updated Title",
+  "displayOrder": 3
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "id": "req-001",
+  "title": "Updated Title",
+  "displayOrder": 3,
+  ...
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description               |
+| ---- | ------------ | ------------------------- |
+| 400  | Bad Request  | Invalid fields            |
+| 401  | Unauthorized | Not logged in             |
+| 403  | Forbidden    | Not owner or not ADMIN    |
+| 404  | Not Found    | Requirement doesn't exist |
+
+---
+
+### 25. Delete Requirement
+
+```http
+DELETE /scholarships/:scholarshipId/requirements/:requirementId
+Authorization: Bearer {token}
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+- `requirementId`: Requirement ID
+
+**Success Response (200):**
+
+```json
+{
+  "message": "Requirement deleted successfully"
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description               |
+| ---- | ------------ | ------------------------- |
+| 401  | Unauthorized | Not logged in             |
+| 403  | Forbidden    | Not owner or not ADMIN    |
+| 404  | Not Found    | Requirement doesn't exist |
+
+---
+
+## Eligibility Criteria
+
+### 26. Set Eligibility Criteria
+
+```http
+POST /scholarships/:scholarshipId/eligibility
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Request Body:**
+
+```json
+{
+  "minGpa": 3.5,
+  "maxGpa": 4.0,
+  "minAge": 18,
+  "maxAge": 25,
+  "allowedMajors": ["Computer Science", "Software Engineering"],
+  "allowedYearsOfStudy": [2, 3, 4],
+  "nationality": "Vietnamese",
+  "otherRequirements": {
+    "hasResearchExperience": true,
+    "minPublications": 1
+  }
+}
+```
+
+**Validation:**
+
+- `minGpa`: Optional, number 0-4.0
+- `maxGpa`: Optional, number 0-4.0, >= minGpa
+- `minAge`: Optional, positive integer
+- `maxAge`: Optional, positive integer, >= minAge
+- `allowedMajors`: Optional, array of strings
+- `allowedYearsOfStudy`: Optional, array of integers 1-6
+- `nationality`: Optional, string
+- `otherRequirements`: Optional, JSON object
+
+**Success Response (201):**
+
+```json
+{
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "minGpa": 3.5,
+  "maxGpa": 4.0,
+  "minAge": 18,
+  "maxAge": 25,
+  "allowedMajors": ["Computer Science", "Software Engineering"],
+  "allowedYearsOfStudy": [2, 3, 4],
+  "nationality": "Vietnamese",
+  "otherRequirements": {...},
+  "createdAt": "2024-11-08T10:00:00.000Z"
+}
+```
+
+**Error Responses:**
+
+| Code | Error            | Description                                  |
+| ---- | ---------------- | -------------------------------------------- |
+| 400  | Validation Error | Invalid ranges (maxGpa < minGpa, etc.)       |
+| 401  | Unauthorized     | Not logged in                                |
+| 403  | Forbidden        | Not owner or not ADMIN                       |
+| 404  | Not Found        | Scholarship doesn't exist                    |
+| 409  | Conflict         | Criteria already exists for this scholarship |
+
+**Business Logic:**
+
+- Thiết lập tiêu chí đủ điều kiện chi tiết
+- 1 scholarship chỉ có 1 bộ criteria
+- Tự động validate khi student apply
+- Giúp filter ứng viên phù hợp
+
+---
+
+### 27. Update Eligibility Criteria
+
+```http
+PATCH /scholarships/:scholarshipId/eligibility
+Authorization: Bearer {token}
+Content-Type: application/json
+```
+
+**Permission:** ADMIN, SPONSOR (own scholarships only)
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Request Body:** (partial update)
+
+```json
+{
+  "minGpa": 3.2,
+  "allowedMajors": [
+    "Computer Science",
+    "Information Technology",
+    "Data Science"
+  ]
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "minGpa": 3.2,
+  "allowedMajors": ["Computer Science", "Information Technology", "Data Science"],
+  ...
+}
+```
+
+**Error Responses:**
+
+| Code | Error        | Description              |
+| ---- | ------------ | ------------------------ |
+| 400  | Bad Request  | Invalid validation rules |
+| 401  | Unauthorized | Not logged in            |
+| 403  | Forbidden    | Not owner or not ADMIN   |
+| 404  | Not Found    | Criteria doesn't exist   |
+
+---
+
+### 28. Get Eligibility Criteria
+
+```http
+GET /scholarships/:scholarshipId/eligibility
+```
+
+**Permission:** Public
+
+**Path Parameters:**
+
+- `scholarshipId`: Scholarship UUID
+
+**Success Response (200):**
+
+```json
+{
+  "scholarshipId": "550e8400-e29b-41d4-a716-446655440000",
+  "minGpa": 3.5,
+  "maxGpa": 4.0,
+  "minAge": 18,
+  "maxAge": 25,
+  "allowedMajors": ["Computer Science", "Software Engineering"],
+  "allowedYearsOfStudy": [2, 3, 4],
+  "nationality": "Vietnamese",
+  "otherRequirements": {...}
+}
+```
+
+**Error Responses:**
+
+| Code | Error     | Description                             |
+| ---- | --------- | --------------------------------------- |
+| 404  | Not Found | Criteria not found for this scholarship |
+
+**Business Logic:**
+
+- Lấy thông tin tiêu chí đủ điều kiện
+- Public API
+- Trả về null/404 nếu chưa set criteria
+
+---
+
+## Applications
+
+### 29. Submit Application
 
 ```http
 POST /applications

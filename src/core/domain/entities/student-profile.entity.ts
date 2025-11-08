@@ -1,15 +1,17 @@
+import { Prisma } from '@prisma/client';
+
 export interface StudentProfileProps {
   id: string;
   userId: string;
-  studentId?: string; // Student ID number (optional)
+  studentId?: string;
   university: string;
   major: string;
-  yearOfStudy: number; // 1-6 for undergraduate/graduate
-  expectedGradYear: number; // Year (e.g., 2025)
-  gpa: number; // 0.00-4.00
+  yearOfStudy: number;
+  expectedGradYear: number;
+  gpa: number;
   skills: string[];
   interests: string[];
-  achievements?: any; // JSON data for achievements
+  achievements?: Prisma.JsonValue;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,12 +20,10 @@ export class StudentProfile {
   private constructor(private readonly props: StudentProfileProps) {}
 
   static create(props: StudentProfileProps): StudentProfile {
-    // Validate GPA range
     if (props.gpa < 0 || props.gpa > 4) {
       throw new Error('GPA must be between 0.00 and 4.00');
     }
 
-    // Validate year of study
     if (props.yearOfStudy < 1 || props.yearOfStudy > 6) {
       throw new Error('Year of study must be between 1 and 6');
     }
@@ -71,7 +71,7 @@ export class StudentProfile {
     return this.props.interests;
   }
 
-  get achievements(): any | undefined {
+  get achievements(): Prisma.JsonValue | undefined {
     return this.props.achievements;
   }
 
@@ -83,7 +83,7 @@ export class StudentProfile {
     return this.props.updatedAt;
   }
 
-  toJSON() {
+  toJSON(): Record<string, unknown> {
     return {
       id: this.id,
       userId: this.userId,

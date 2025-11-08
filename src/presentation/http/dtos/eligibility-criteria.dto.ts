@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// DTO Schema for setting eligibility criteria
 export const SetEligibilityCriteriaDtoSchema = z
   .object({
     minGpa: z
@@ -15,14 +14,8 @@ export const SetEligibilityCriteriaDtoSchema = z
       .max(4, 'Maximum GPA must not exceed 4.00')
       .multipleOf(0.01, 'GPA must have at most 2 decimal places')
       .optional(),
-    allowedMajors: z
-      .array(z.string())
-      .default([])
-      .describe('List of allowed majors (empty = all majors allowed)'),
-    allowedYearOfStudy: z
-      .array(z.number().int().min(1).max(6))
-      .default([])
-      .describe('List of allowed years of study (empty = all years allowed)'),
+    allowedMajors: z.array(z.string()).default([]),
+    allowedYearOfStudy: z.array(z.number().int().min(1).max(6)).default([]),
     minAge: z
       .number()
       .int()
@@ -36,7 +29,7 @@ export const SetEligibilityCriteriaDtoSchema = z
       .max(100, 'Maximum age must not exceed 100')
       .optional(),
     requiredNationality: z.string().optional(),
-    otherRequirements: z.string().optional(),
+    otherRequirements: z.unknown().optional(),
   })
   .refine(
     (data) => {
@@ -97,7 +90,7 @@ export const UpdateEligibilityCriteriaDtoSchema = z
       .max(100, 'Maximum age must not exceed 100')
       .optional(),
     requiredNationality: z.string().optional(),
-    otherRequirements: z.string().optional(),
+    otherRequirements: z.unknown().optional(),
   })
   .refine(
     (data) => {

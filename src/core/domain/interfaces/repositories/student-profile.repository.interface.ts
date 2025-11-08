@@ -1,4 +1,5 @@
 import { StudentProfile } from '../../entities/student-profile.entity';
+import { Prisma } from '@prisma/client';
 
 export interface CreateStudentProfileData {
   userId: string;
@@ -10,7 +11,7 @@ export interface CreateStudentProfileData {
   expectedGradYear: number;
   skills: string[];
   interests: string[];
-  achievements?: any;
+  achievements?: Prisma.InputJsonValue;
 }
 
 export interface UpdateStudentProfileData {
@@ -22,7 +23,7 @@ export interface UpdateStudentProfileData {
   expectedGradYear?: number;
   skills?: string[];
   interests?: string[];
-  achievements?: any;
+  achievements?: Prisma.InputJsonValue;
 }
 
 export interface IStudentProfileRepository {

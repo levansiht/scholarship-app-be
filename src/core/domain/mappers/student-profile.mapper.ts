@@ -15,7 +15,7 @@ export class StudentProfileMapper {
       university: prisma.university,
       major: prisma.major,
       yearOfStudy: prisma.yearOfStudy,
-      gpa: prisma.gpa.toNumber(), // Convert Decimal to number
+      gpa: prisma.gpa.toNumber(),
       expectedGradYear: prisma.expectedGradYear,
       skills: prisma.skills,
       interests: prisma.interests,
@@ -34,7 +34,7 @@ export class StudentProfileMapper {
       university: domain.university,
       major: domain.major,
       yearOfStudy: domain.yearOfStudy,
-      gpa: domain.gpa, // Prisma will convert to Decimal
+      gpa: domain.gpa,
       expectedGradYear: domain.expectedGradYear,
       skills: domain.skills,
       interests: domain.interests,

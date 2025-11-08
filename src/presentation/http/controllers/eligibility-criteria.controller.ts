@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Prisma } from '@prisma/client';
 import {
   SetEligibilityCriteriaDto,
   UpdateEligibilityCriteriaDto,
@@ -47,7 +48,7 @@ export class EligibilityCriteriaController {
         dto.minAge,
         dto.maxAge,
         dto.requiredNationality,
-        dto.otherRequirements,
+        dto.otherRequirements as Prisma.InputJsonValue,
       ),
     );
   }
@@ -69,7 +70,7 @@ export class EligibilityCriteriaController {
         dto.minAge,
         dto.maxAge,
         dto.requiredNationality,
-        dto.otherRequirements,
+        dto.otherRequirements as Prisma.InputJsonValue,
       ),
     );
   }

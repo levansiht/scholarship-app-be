@@ -1,4 +1,5 @@
 import { EligibilityCriteria } from '../../entities/eligibility-criteria.entity';
+import { Prisma } from '@prisma/client';
 
 export interface SetCriteriaData {
   scholarshipId: string;
@@ -9,7 +10,7 @@ export interface SetCriteriaData {
   minAge?: number;
   maxAge?: number;
   requiredNationality?: string;
-  otherRequirements?: any;
+  otherRequirements?: Prisma.InputJsonValue;
 }
 
 export interface UpdateCriteriaData {
@@ -20,7 +21,7 @@ export interface UpdateCriteriaData {
   minAge?: number;
   maxAge?: number;
   requiredNationality?: string;
-  otherRequirements?: any;
+  otherRequirements?: Prisma.InputJsonValue;
 }
 
 export interface IEligibilityCriteriaRepository {

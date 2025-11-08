@@ -5,11 +5,11 @@ export const CreateStudentProfileDtoSchema = z.object({
   university: z.string().min(1).max(255),
   major: z.string().min(1).max(255),
   yearOfStudy: z.number().int().min(1).max(6),
-  gpa: z.number().min(0).max(4).multipleOf(0.01), // 0.00 to 4.00 with 2 decimals
+  gpa: z.number().min(0).max(4).multipleOf(0.01),
   expectedGradYear: z.number().int().min(2020).max(2050),
   skills: z.array(z.string()).default([]),
   interests: z.array(z.string()).default([]),
-  achievements: z.any().optional(),
+  achievements: z.unknown().optional(),
 });
 
 export type CreateStudentProfileDto = z.infer<
@@ -25,7 +25,7 @@ export const UpdateStudentProfileDtoSchema = z.object({
   expectedGradYear: z.number().int().min(2020).max(2050).optional(),
   skills: z.array(z.string()).optional(),
   interests: z.array(z.string()).optional(),
-  achievements: z.any().optional(),
+  achievements: z.unknown().optional(),
 });
 
 export type UpdateStudentProfileDto = z.infer<

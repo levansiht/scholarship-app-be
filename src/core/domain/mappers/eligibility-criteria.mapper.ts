@@ -17,7 +17,7 @@ export class EligibilityCriteriaMapper {
         prisma.nationality && prisma.nationality.length > 0
           ? prisma.nationality[0]
           : undefined,
-      otherRequirements: (prisma.otherCriteria as any) ?? undefined,
+      otherRequirements: prisma.otherCriteria ?? undefined,
       createdAt: prisma.createdAt,
       updatedAt: prisma.updatedAt,
     });

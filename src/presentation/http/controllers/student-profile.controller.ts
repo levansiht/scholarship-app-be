@@ -10,6 +10,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { Prisma } from '@prisma/client';
 import {
   JwtAuthGuard,
   CurrentUser,
@@ -57,7 +58,7 @@ export class StudentProfileController {
       expectedGradYear: dto.expectedGradYear,
       skills: dto.skills,
       interests: dto.interests,
-      achievements: dto.achievements,
+      achievements: dto.achievements as Prisma.InputJsonValue,
     });
 
     return this.commandBus.execute(command);
@@ -80,7 +81,10 @@ export class StudentProfileController {
     @CurrentUser('userId') userId: string,
     @Body() dto: UpdateStudentProfileDto,
   ): Promise<StudentProfile> {
-    const command = new UpdateStudentProfileCommand(userId, dto);
+    const command = new UpdateStudentProfileCommand(userId, {
+      ...dto,
+      achievements: dto.achievements as Prisma.InputJsonValue,
+    });
     return this.commandBus.execute(command);
   }
 

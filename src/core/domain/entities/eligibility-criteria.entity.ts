@@ -1,14 +1,16 @@
+import { Prisma } from '@prisma/client';
+
 export interface EligibilityCriteriaProps {
   id: string;
   scholarshipId: string;
-  minGpa?: number; // Minimum GPA required (0.00-4.00)
-  maxGpa?: number; // Maximum GPA allowed (0.00-4.00)
-  allowedMajors: string[]; // List of allowed majors (empty = all majors)
-  allowedYearOfStudy: number[]; // List of allowed years (e.g., [1,2,3,4])
-  minAge?: number; // Minimum age requirement
-  maxAge?: number; // Maximum age requirement
-  requiredNationality?: string; // Required nationality (null = any)
-  otherRequirements?: string; // Additional text requirements
+  minGpa?: number;
+  maxGpa?: number;
+  allowedMajors: string[];
+  allowedYearOfStudy: number[];
+  minAge?: number;
+  maxAge?: number;
+  requiredNationality?: string;
+  otherRequirements?: Prisma.JsonValue;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,7 +19,6 @@ export class EligibilityCriteria {
   private constructor(private readonly props: EligibilityCriteriaProps) {}
 
   static create(props: EligibilityCriteriaProps): EligibilityCriteria {
-    // Validate GPA range
     if (props.minGpa !== undefined && (props.minGpa < 0 || props.minGpa > 4)) {
       throw new Error('Minimum GPA must be between 0.00 and 4.00');
     }
@@ -30,7 +31,6 @@ export class EligibilityCriteria {
       throw new Error('Minimum GPA cannot be greater than maximum GPA');
     }
 
-    // Validate age range
     if (props.minAge && props.maxAge && props.minAge > props.maxAge) {
       throw new Error('Minimum age cannot be greater than maximum age');
     }
@@ -74,7 +74,7 @@ export class EligibilityCriteria {
     return this.props.requiredNationality;
   }
 
-  get otherRequirements(): string | undefined {
+  get otherRequirements(): Prisma.JsonValue | undefined {
     return this.props.otherRequirements;
   }
 
@@ -86,7 +86,7 @@ export class EligibilityCriteria {
     return this.props.updatedAt;
   }
 
-  toJSON() {
+  toJSON(): Record<string, unknown> {
     return {
       id: this.id,
       scholarshipId: this.scholarshipId,

@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 export class UpdateEligibilityCriteriaCommand {
   constructor(
     public readonly scholarshipId: string,
@@ -8,6 +10,6 @@ export class UpdateEligibilityCriteriaCommand {
     public readonly minAge?: number,
     public readonly maxAge?: number,
     public readonly requiredNationality?: string,
-    public readonly otherRequirements?: string,
+    public readonly otherRequirements?: Prisma.InputJsonValue,
   ) {}
 }

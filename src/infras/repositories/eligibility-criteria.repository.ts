@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import {
   IEligibilityCriteriaRepository,
   SetCriteriaData,
@@ -15,12 +16,10 @@ export class EligibilityCriteriaRepository
   constructor(private readonly prisma: PrismaService) {}
 
   async set(data: SetCriteriaData): Promise<EligibilityCriteria> {
-    // Delete existing criteria for this scholarship
     await this.prisma.eligibilityCriteria.deleteMany({
       where: { scholarshipId: data.scholarshipId },
     });
 
-    // Create new criteria
     const now = new Date();
     const criteria = EligibilityCriteria.create({
       id: crypto.randomUUID(),
@@ -32,7 +31,7 @@ export class EligibilityCriteriaRepository
       minAge: data.minAge,
       maxAge: data.maxAge,
       requiredNationality: data.requiredNationality,
-      otherRequirements: data.otherRequirements,
+      otherRequirements: data.otherRequirements as Prisma.JsonValue,
       createdAt: now,
       updatedAt: now,
     });
@@ -74,7 +73,9 @@ export class EligibilityCriteriaRepository
 
     const updated = await this.prisma.eligibilityCriteria.update({
       where: { id: existing.id },
-      data: EligibilityCriteriaMapper.toUpdatePrisma(data),
+      data: EligibilityCriteriaMapper.toUpdatePrisma(
+        data as Partial<EligibilityCriteria>,
+      ),
     });
 
     return EligibilityCriteriaMapper.toDomain(updated);

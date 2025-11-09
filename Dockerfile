@@ -32,7 +32,6 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 RUN npm ci --only=production && \
-    npm install -D ts-node typescript @types/node && \
     npm cache clean --force
 
 RUN npx prisma generate

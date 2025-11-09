@@ -16,7 +16,6 @@ import { SponsorProfileModule } from './presentation/http/modules/sponsor-profil
 import { StudentProfileModule } from './presentation/http/modules/student-profile.module';
 import { EligibilityCriteriaModule } from './presentation/http/modules/eligibility-criteria.module';
 import { HealthController } from './presentation/http/controllers/health.controller';
-import { DebugController } from './presentation/http/controllers/debug.controller';
 
 @Module({
   imports: [
@@ -40,7 +39,7 @@ import { DebugController } from './presentation/http/controllers/debug.controlle
     StudentProfileModule,
     EligibilityCriteriaModule,
   ],
-  controllers: [HealthController, DebugController],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}

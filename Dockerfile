@@ -32,6 +32,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 RUN npm ci --only=production && \
+    npm install -D ts-node typescript @types/node && \
     npm cache clean --force
 
 RUN npx prisma generate
@@ -47,5 +48,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
 
 ENTRYPOINT ["dumb-init", "--"]
 
-# Run migrations and start the app
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/src/main.js"]
+# Run migrations, seed database if needed, and start the app
+CMD ["sh", "-c", "npx prisma migrate deploy && npx ts-node prisma/seed.ts || true && node dist/src/main.js"]
